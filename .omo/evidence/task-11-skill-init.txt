@@ -1,0 +1,38 @@
+Task 11.1 + Task 11.2 evidence
+
+Scope
+- Added packaged canonical Skill under src/career_ai/skills/career_resume_tailor:
+  SKILL.md, references/workflow.md, references/fact-policy.md,
+  references/proposal-contract.md, references/rendering.md, agents/openai.yaml.
+- Added career_ai.skills.installation with HostAgent codex|claude|opencode|all,
+  canonical Skill hashing, package resource metadata, and idempotent install.
+- Added host_init_cli.py and registered career-ai-agent init --agent.
+- Codex/OpenCode install to shared .agents/skills/career-resume-tailor.
+- Claude installs to .claude/plugins/career-resume-tailor.
+- Existing same-name files are never overwritten; different content is reported
+  as exists-different.
+- pyproject.toml now packages career_ai.skills resources for wheel/pipx installs.
+
+Verification
+- .venv/Scripts/python.exe -m pytest tests/test_skill_init.py tests/test_host_proposal_cli_misc.py -q -> 5 passed.
+- .venv/Scripts/python.exe -m pytest tests/test_application_service.py tests/test_app_layout.py tests/test_skill_init.py tests/test_host_proposal_cli.py tests/test_host_proposal_cli_misc.py -q -> 17 passed.
+- .venv/Scripts/python.exe -m pytest -q -> 338 passed.
+- .venv/Scripts/ruff.exe check . -> All checks passed.
+- .venv/Scripts/basedpyright.exe -> 0 errors, 0 warnings, 0 notes.
+- .venv/Scripts/career-ai-agent.exe doctor -> Skill hash reported, HTML renderer available, Tectonic/XeLaTeX unavailable.
+- Manual init probe in temp workspace:
+  first init --agent all -> codex installed, opencode present, claude installed.
+  second init --agent all -> all present.
+  .agents/skills/career-resume-tailor/SKILL.md exists.
+  .claude/plugins/career-resume-tailor/SKILL.md exists.
+
+Adversarial notes
+- malformed_input: proposal JSON strictness remains covered by validate-draft tests.
+- prompt_injection: Skill policy keeps host source text inert and delegates facts to local harness.
+- dirty_worktree: no reset, stage, commit, push, or unrelated cleanup.
+- stale_state: Skill hash and installed tree hash are recorded.
+- dependency_unavailable: LaTeX engine absence remains surfaced by doctor without blocking .tex.
+- misleading_success_output: eval/eval-matrix still report known sample_product_analyst failure.
+
+Cleanup
+- Temp init workspace was removed.

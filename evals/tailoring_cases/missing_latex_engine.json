@@ -1,0 +1,34 @@
+{
+  "case_id": "missing_latex_engine",
+  "resume_text": "Technical writer\n- Documented REST APIs and release procedures.\n- Maintained developer onboarding guides.",
+  "jd_text": "Developer Documentation Specialist. Requires API documentation and onboarding content.",
+  "proposal": {
+    "strategy": "conservative",
+    "rewritten_resume": "Developer Documentation Specialist\n- Documented REST APIs and release procedures.\n- Maintained developer onboarding guides.",
+    "changes": [
+      {
+        "change_id": "align-documentation-title",
+        "proposed_text": "Developer Documentation Specialist",
+        "evidence": [
+          "Technical writer",
+          "Documented REST APIs and release procedures."
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [
+    "latex_engine_missing"
+  ],
+  "rendering_expectations": {
+    "mode": "system_latex",
+    "template_text": "",
+    "engine": "tectonic",
+    "engine_available": false,
+    "template_hash_matches": true,
+    "expected_status": "blocked",
+    "must_contain": [],
+    "must_not_contain": []
+  }
+}

@@ -13,6 +13,7 @@ dist/
 .env
 .env.*
 !.env.example
+.career_ai/
 
 .DS_Store
 Thumbs.db

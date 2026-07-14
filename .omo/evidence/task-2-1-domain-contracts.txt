@@ -1,0 +1,40 @@
+Task 2.1 - typed tailoring domain contracts
+Date: 2026-07-11 Asia/Hong_Kong
+
+Baseline characterization before production changes
+- Command: .venv\Scripts\python.exe -m pytest tests/test_public_api.py tests/test_analysis.py -q
+- Result: 6 passed in 0.90s
+- Existing career_ai.models and career_ai.__init__ were inspected and not modified.
+
+TDD evidence
+- Red: tests/test_tailoring_models.py failed collection because career_ai.tailoring did not exist.
+- Green: .venv\Scripts\python.exe -m pytest tests/test_tailoring_models.py -q
+- Result: 17 passed in 0.88s
+
+Manual Chinese JSON graph round-trip
+{"artifact":{"id":"resume-zh-1","label":"中文简历"},"evidence":{"id":"evidence-1","source_artifact_id":"resume-zh-1","text":"负责碳交易平台, 协调产品与工程团队。","start_offset":0,"end_offset":20},"fact":{"id":"fact-1","statement":"有碳交易平台跨团队协作经验","provenance":{"kind":"evidence","evidence_span_ids":["evidence-1"]}},"requirement":{"id":"requirement-1","statement":"具备跨团队协作经验","priority":"required","evidence_span_ids":["jd-evidence-1"]},"match":{"id":"match-1","requirement_id":"requirement-1","candidate_fact_id":"fact-1","evidence_span_ids":["evidence-1"],"status":"supported"}}
+ROUND_TRIP=PASS
+
+Boundary probes covered by tests/test_tailoring_models.py
+- Invalid IDs: PASS (path traversal, whitespace, and punctuation rejected).
+- Missing candidate-fact provenance: PASS (ValidationError).
+- JD-only term as candidate fact: PASS (empty evidence provenance rejected).
+- Malformed JSON: PASS (ValidationError at Pydantic boundary).
+- Prompt-injection string: PASS (preserved verbatim as inert data).
+- Frozen mutation: PASS (ValidationError).
+- Dirty worktree: observed and preserved; no staging or commits performed.
+
+Quality gates
+- Focused pytest: PASS, 17 passed.
+- Focused Ruff: PASS, all checks passed.
+- Focused BasedPyright: PASS, 0 errors, 0 warnings, 0 notes.
+- git diff --check for tailoring files: PASS.
+- Pure LOC: models.py 128; __init__.py 39; test_tailoring_models.py 155.
+- Full pytest: BLOCKED by concurrent out-of-scope tests/test_latex_primitives.py importing
+  LatexContext and related symbols that are not yet exported by career_ai.rendering.latex.
+- Full Ruff: BLOCKED by concurrent out-of-scope workspace/LaTeX/golden-fixture findings.
+- Full BasedPyright: BLOCKED by concurrent out-of-scope LaTeX, golden-fixture, and workspace
+  errors. The focused tailoring scope remains clean.
+
+Temporary data
+- No temporary files were created; the round-trip was executed in memory.

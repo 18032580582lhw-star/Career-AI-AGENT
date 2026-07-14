@@ -1,0 +1,34 @@
+{
+  "case_id": "needs_confirmation_inference",
+  "resume_text": "Customer insights analyst\n- Facilitated recurring interviews with product users.\n- Synthesized interview notes into product recommendations.",
+  "jd_text": "Senior UX Researcher. Requires ownership of end-to-end research programs and executive presentations.",
+  "proposal": {
+    "strategy": "substantial",
+    "rewritten_resume": "Customer Insights Analyst\n- Owned an end-to-end user research program and presented recommendations to executives.",
+    "changes": [
+      {
+        "change_id": "infer-ownership-and-audience",
+        "proposed_text": "Owned an end-to-end user research program and presented recommendations to executives.",
+        "evidence": [
+          "Facilitated recurring interviews with product users.",
+          "Synthesized interview notes into product recommendations."
+        ],
+        "requires_confirmation": true
+      }
+    ]
+  },
+  "expected_decision": "needs_confirmation",
+  "expected_codes": [
+    "inference_requires_confirmation"
+  ],
+  "rendering_expectations": {
+    "mode": "none",
+    "template_text": "",
+    "engine": "",
+    "engine_available": false,
+    "template_hash_matches": true,
+    "expected_status": "not_requested",
+    "must_contain": [],
+    "must_not_contain": []
+  }
+}

@@ -1,0 +1,13 @@
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\ifdefined\XeTeXgenerateactualtext
+\XeTeXgenerateactualtext=1
+\fi
+\IfFontExistsTF{Noto Sans}{\setmainfont{Noto Sans}}{\setmainfont{TeX Gyre Heros}}
+\IfFontExistsTF{Noto Sans CJK SC}{\setCJKmainfont{Noto Sans CJK SC}}{}
+\usepackage[margin=0.75in]{geometry}
+\setlength{\parindent}{0pt}
+\begin{document}
+@@RESUME_BODY@@
+\end{document}

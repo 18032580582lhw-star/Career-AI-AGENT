@@ -1,0 +1,32 @@
+Task 1.3 legacy history compatibility evidence
+
+Focused tests:
+  .venv/Scripts/python.exe -m pytest tests/test_legacy_history_adapter.py tests/test_history.py tests/test_workspace.py -q
+  Result: 18 passed in 1.34s
+
+Static quality:
+  .venv/Scripts/ruff.exe check src/career_ai/legacy_history.py tests/test_legacy_history_adapter.py
+  Result: All checks passed
+  .venv/Scripts/basedpyright.exe src/career_ai/legacy_history.py tests/test_legacy_history_adapter.py
+  Result: 0 errors, 0 warnings, 0 notes
+
+Manual read-only probe:
+  Loaded 7 records from .career_ai/history.json; first record_kind=legacy.
+  SHA-256 before: 4A294713D9DCB491311F9752F154B3B434038EFEA546DE01BC4C73CC15BB730C
+  SHA-256 after:  4A294713D9DCB491311F9752F154B3B434038EFEA546DE01BC4C73CC15BB730C
+
+Boundary probes:
+  Missing file returns [] without creating a file.
+  Malformed JSON returns [] without repairing or changing source bytes.
+  Legacy records expose record_kind=legacy and do not invent v2 run, provenance,
+  LaTeX, template, or render-manifest fields.
+
+Architecture:
+  src/career_ai/legacy_history.py pure LOC: 26
+  tests/test_legacy_history_adapter.py pure LOC: 48
+  Both are below the 250 pure LOC ceiling.
+
+Full-suite note:
+  The concurrent full-suite run was blocked during collection by another active
+  task's missing career_ai.tailoring.document_contracts module. This is not a
+  failure in the legacy-history slice; focused compatibility tests remained green.

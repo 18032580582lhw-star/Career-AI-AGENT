@@ -1,0 +1,35 @@
+Task 2.3 - JD isolation and confirmation-aware provenance
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+TDD
+- Red: candidate extractor tests failed during collection because ResumeFactSource and create_confirmed_candidate_fact did not exist.
+- Green: candidate extraction now requires a frozen ResumeFactSource with literal role=resume; explicit user confirmation creates stable UserConfirmationProvenance.
+
+Automated verification
+- .venv/Scripts/python.exe -m pytest tests/test_candidate_fact_extractor.py tests/test_jd_requirement_extractor.py tests/test_tailoring_models.py -q -> 26 passed in 0.97s.
+- Scoped Ruff -> All checks passed.
+- Scoped BasedPyright -> 0 errors, 0 warnings, 0 notes.
+- check-no-excuse-rules.py -> no violations in 3 files.
+- .venv/Scripts/python.exe -m pytest -q -> 187 passed in 6.66s.
+- git diff --check -> exit 0.
+
+Manual QA
+- ResumeFactSource.model_validate rejected role=job_description.
+- A real Chinese resume produced four evidence-backed facts through the typed resume binding.
+- Explicitly confirmed fact uses UserConfirmationProvenance and is deterministic for the same statement and confirmation.
+- Empty confirmation is rejected by the typed model boundary.
+
+Adversarial QA
+- malformed input: invalid source role and empty confirmation are rejected by Pydantic.
+- prompt injection: source role is not inferred from content or filename; hostile text cannot change the literal role contract.
+- cancel/resume: creation is pure and deterministic.
+- stale state: source identity remains explicit in ResumeFactSource; source hash/run staleness remains later workspace state.
+- dirty worktree: existing changes preserved; no reset, stage, commit, or push.
+- hung commands: all commands completed within bounded time.
+- flaky tests: no clock or randomness; stable equality asserted.
+- misleading success output: docstring-only JD exclusion was replaced with an enforced typed boundary.
+- repeated interruptions: stateless calls are safely repeatable.
+
+Cleanup receipt
+- Manual probe was in-memory; no persistent temp files, services, ports, browsers, or containers.

@@ -1,0 +1,32 @@
+{
+  "case_id": "chinese_resume_english_jd",
+  "resume_text": "数据分析师\n- 使用 Python 和 SQL 分析客户留存趋势。\n- 为产品团队制作每周数据看板。\n- 向产品经理汇报分析结论。",
+  "jd_text": "Product Data Analyst. Requires Python, SQL, retention analysis, dashboard reporting, and product stakeholder communication.",
+  "proposal": {
+    "strategy": "substantial",
+    "rewritten_resume": "数据分析师 | 产品数据分析\n- 使用 Python 和 SQL 分析客户留存趋势，并为产品团队制作每周数据看板。\n- 向产品经理汇报分析结论，支持产品决策。",
+    "changes": [
+      {
+        "change_id": "align-chinese-evidence",
+        "proposed_text": "使用 Python 和 SQL 分析客户留存趋势，并为产品团队制作每周数据看板。",
+        "evidence": [
+          "使用 Python 和 SQL 分析客户留存趋势。",
+          "为产品团队制作每周数据看板。"
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [],
+  "rendering_expectations": {
+    "mode": "none",
+    "template_text": "",
+    "engine": "",
+    "engine_available": false,
+    "template_hash_matches": true,
+    "expected_status": "not_requested",
+    "must_contain": [],
+    "must_not_contain": []
+  }
+}

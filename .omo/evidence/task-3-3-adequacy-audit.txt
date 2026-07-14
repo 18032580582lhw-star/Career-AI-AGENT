@@ -1,0 +1,29 @@
+Task 3.3 - adequacy design audit (not completed)
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+Status
+- Task 3.3 remains unchecked and Boulder remains active.
+- An initial local implementation reached 5 focused passing tests but was removed after an independent audit proved the contract could report false optimization gain.
+- Repository gates after removal: 199 passed, Ruff clean, BasedPyright 0 errors, git diff --check clean.
+
+Confirmed design requirements for the next continuation
+- Accept EvidenceRequirementMatch records, not a caller-trusted evidence_supported_ids set.
+- Count new coverage only when change.target_requirement_ids joins a SUPPORTED/CONFIRMED match whose candidate_fact_id is present in the same change.source_fact_ids.
+- Validate requirement, fact, match, and change references and duplicates.
+- Use exact 90% threshold comparison (10 * covered >= 9 * total); integer scores are display only.
+- Require a substantive change using at least two relevant facts only when baseline is below 90% and an uncovered evidence-backed required opportunity exists.
+- Permit accepted no-op behavior when baseline is already high or no safe optimization opportunity exists.
+- Add stable keyword_stuffing and readability_regression codes based on meaningful JD terms and explicit readability thresholds.
+- Resolve protocol/golden mismatch: current ResumeTailoringProposal requires at least one change and lacks whole rewritten resume text, while the accepted no-op golden case has changes=[] and byte-identical output.
+- Add a real golden adapter/integration path; current golden tests only assert stored expected values.
+
+Rejected initial design
+- Separate evidence_supported_ids allowed arbitrary fact-to-requirement target labeling to manufacture a 50-to-60 coverage gain.
+- Candidate fact count >=2 did not prove that an optimization used two relevant facts.
+- Requiring substantive change at 100% baseline contradicted the accepted no-op golden case.
+- Any repeated token >=4 was too broad to be a trustworthy keyword-stuffing rule.
+
+Cleanup receipt
+- The rejected adequacy module and its tests were removed with apply_patch.
+- No services, ports, browsers, containers, or persistent temporary QA resources were created.

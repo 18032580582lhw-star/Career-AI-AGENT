@@ -1,0 +1,21 @@
+{
+  "id": "career_content_writer_gap",
+  "name": "Synthetic Career Content Writer gap sample",
+  "input": {
+    "resume_text": "Career content writer who created resume guidance for early-career job seekers.\n- Wrote resume examples and interview preparation articles.\n- Partnered with product teams on candidate-facing onboarding content.\n- Reviewed user feedback with stakeholders to improve help-center articles.",
+    "jd_text": "Role: Career Content Writer\nWe are hiring a Career Content Writer to create resume, cover letter, product education, and stakeholder communication content for job seekers."
+  },
+  "expected": {
+    "role_title": "Career Content Writer",
+    "required_missing_keywords": [
+      "cover letter",
+      "stakeholder communication"
+    ],
+    "forbidden_new_claims": [
+      "published 1000 articles",
+      "led paid acquisition campaigns",
+      "managed university recruiting partnerships"
+    ],
+    "prompt_strategy_count_min": 3
+  }
+}

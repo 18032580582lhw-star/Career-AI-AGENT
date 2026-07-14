@@ -1,0 +1,37 @@
+{
+  "case_id": "malicious_latex",
+  "resume_text": "Security analyst\n- Reviewed application security findings.\n- Wrote remediation guidance for engineering teams.",
+  "jd_text": "Application Security Analyst. Requires security review and engineering remediation guidance.",
+  "proposal": {
+    "strategy": "conservative",
+    "rewritten_resume": "Application Security Analyst\n- Reviewed application security findings.\n- Wrote remediation guidance for engineering teams.",
+    "changes": [
+      {
+        "change_id": "align-security-title",
+        "proposed_text": "Application Security Analyst",
+        "evidence": [
+          "Security analyst",
+          "Reviewed application security findings."
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "rejected",
+  "expected_codes": [
+    "unsafe_latex_command"
+  ],
+  "rendering_expectations": {
+    "mode": "user_latex",
+    "template_text": "\\documentclass{article}\n\\begin{document}\n\\immediate\\write18{powershell -Command Get-ChildItem}\n%%CAREER_AI_EXPERIENCE%%\n\\end{document}",
+    "engine": "tectonic",
+    "engine_available": true,
+    "template_hash_matches": true,
+    "expected_status": "blocked",
+    "must_contain": [],
+    "must_not_contain": [
+      "\\write18",
+      "powershell -Command"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+Task 3.4 - validation lifecycle and two-repair cap
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+Implementation
+- Added deterministic lifecycle aggregation with precedence: stale, rejection from either harness error, confirmation warning, accepted.
+- SafetyHarnessResult and AdequacyHarnessResult bind run_id and proposal_hash; cross-proposal substitution is rejected.
+- Source and template hashes are checked before acceptance; source mappings are runtime immutable.
+- advance_repair consumes persisted attempts 0 -> 1 -> 2 and refuses any third repair.
+- render_allowed is true only for an accepted, current-hash, dual-harness pass.
+- Validation hashes are canonical and independent of finding input order.
+
+Adversarial closure
+- Full rewritten output and every change remain subject to factual safety checks.
+- Negated evidence cannot become a positive claim, including long negation scope.
+- Metrics cannot be swapped between outcomes, including natural "by N%" phrasing.
+- Adequacy errors take precedence over confirmation warnings.
+- A real no-op golden fixture executes through typed proposal parsing, Safety, Adequacy, lifecycle aggregation, and render guard.
+
+Verification
+- Full pytest: 238 passed.
+- Full Ruff: passed.
+- Full BasedPyright: 0 errors, 0 warnings, 0 notes.
+- git diff --check: passed.
+- doctor: passed with fake/local-fake capability report.
+- eval and eval-matrix honestly retain the known sample_product_analyst missing-keywords failure.
+- Relevant production and test files remain at or below 250 pure LOC.
+
+Review-work final report
+- Goal and constraint verification: PASS.
+- Hands-on QA: PASS.
+- Code quality: PASS.
+- Security: PASS.
+- Context mining: PASS.
+
+Cleanup receipt
+- All manual probes were in-memory.
+- No temporary files, services, ports, browsers, or containers remain.
+- Pre-existing dirty worktree preserved; no reset, stage, commit, push, or unrelated cleanup.

@@ -1,0 +1,42 @@
+Task 3.1 - versioned tailoring protocol contracts
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+Resume point
+- Contract code and 15 behavior tests existed, but Ruff and BasedPyright failed and no completion evidence was recorded.
+- Existing behavior tests passed before the static repair and served as characterization coverage.
+
+Static repair
+- Mapping annotations used by Pydantic fields were replaced with concrete JSON dict fields so runtime model construction remains valid.
+- Type-only Mapping imports remain only for ordinary postponed function annotations.
+- Dynamic Pydantic error messages use a literal template plus typed context.
+- Exhaustive enum fallbacks retain assert_never without triggering unreachable-pattern diagnostics.
+- Test payloads use JsonValue, explicit enums, consumed call results, and model_validate for mutated JSON.
+- Two completed-slice test-only BasedPyright findings were repaired to restore the full repository gate.
+
+Verification
+- Focused pytest -> 15 passed in 0.92s.
+- Full pytest -> 187 passed in 7.83s.
+- Full Ruff -> All checks passed.
+- Full BasedPyright -> 0 errors, 0 warnings, 0 notes.
+- check-no-excuse-rules.py -> no violations in 7 files.
+- git diff --check -> exit 0.
+
+Manual QA
+- Constructed a complete proposal payload through the public Pydantic contract.
+- JSON serialization and validation round-trip returned an equal immutable proposal.
+- Changing strategy without recomputing proposal_hash was rejected as tampering.
+
+Adversarial QA
+- malformed input: invalid IDs, enums, hashes, duplicate references, and contradictory accepted decisions are rejected by tests.
+- prompt injection: proposal strings remain JSON data; extra fields are forbidden.
+- cancel/resume: versioned immutable contracts round-trip deterministically.
+- stale state: proposal hash binds canonical content; run state contracts include STALE for later state machine handling.
+- dirty worktree: preserved; no reset, stage, commit, or push.
+- hung commands: all final commands completed under 120 seconds.
+- flaky tests: no time/random dependency; full suite repeated successfully across this run.
+- misleading success output: a TYPE_CHECKING-only Mapping change that broke Pydantic runtime was caught by pytest and replaced with a runtime-safe field type.
+- repeated interruptions: canonical JSON and hashes are deterministic across repeated validation.
+
+Cleanup receipt
+- Manual probe was in-memory; no persistent files, services, ports, browser sessions, or containers.

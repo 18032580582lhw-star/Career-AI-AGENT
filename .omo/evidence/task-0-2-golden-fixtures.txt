@@ -1,0 +1,76 @@
+Task 0.2 - release-quality golden fixtures evidence
+Date: 2026-07-11
+Workspace: F:\AGENT
+
+Scope receipt
+- Added 13 JSON files under evals/tailoring_cases/.
+- Added tests/test_tailoring_golden_fixtures.py.
+- Added this evidence receipt.
+- No production code or existing eval fixture was edited.
+- No files were staged, committed, pushed, reset, or checked out.
+
+Baseline characterization before new test/fixtures
+Command: PowerShell Get-ChildItem evals -Recurse -Filter *.json, then ConvertFrom-Json
+BASELINE_JSON_COUNT=1
+PARSED=F:\AGENT\evals\career_cases\sample_product_analyst.json
+BASELINE_RESULT=PASS
+
+TDD red
+Command: .\.venv\Scripts\python.exe -m pytest tests\test_tailoring_golden_fixtures.py -v
+Result before fixtures: 6 failed, 1 passed.
+Expected failure: evals/tailoring_cases contained zero of the 13 required case IDs.
+Malformed JSON boundary test already passed.
+
+Targeted verification
+Command: .\.venv\Scripts\python.exe -m pytest tests\test_tailoring_golden_fixtures.py -v
+Result: PASS, 7 passed.
+Command: .\.venv\Scripts\ruff.exe check tests\test_tailoring_golden_fixtures.py
+Result: PASS, All checks passed.
+Post-write audit: TEST_PURE_LOC=114; no-excuse checker reported no violations in 1 file.
+
+Full-suite verification
+Command: .\.venv\Scripts\python.exe -m pytest
+Result: BLOCKED during collection by concurrent/out-of-scope LaTeX work.
+Collected: 137 items / 1 error.
+Error: tests/test_latex_primitives.py cannot import LatexContext from career_ai.rendering.latex.
+Task 0.2 targeted tests were independently green before this full-suite run.
+
+PowerShell JSON parse and truthful-count probe
+Command shape: Get-ChildItem evals\tailoring_cases -Filter *.json; Get-Content -Raw -Encoding UTF8 | ConvertFrom-Json
+EXPECTED_COUNT=13
+FILE_COUNT=13
+PARSED_COUNT=13
+UNIQUE_CASE_ID_COUNT=13
+PARSE_RESULT=PASS
+Case IDs:
+- chinese_resume_english_jd
+- cjk_latex
+- jd_only_kubernetes
+- malicious_latex
+- missing_latex_engine
+- multi_evidence_merge
+- needs_confirmation_inference
+- no_op_conservative_output
+- responsibility_seniority_metric_inflation
+- safe_substantial_rewrite
+- stale_user_template
+- system_latex
+- user_template_latex
+Encoding note: Windows PowerShell 5.1 Get-Content without -Encoding UTF8 mojibakes CJK JSON; the reproducible parse command must specify UTF8.
+
+Adversarial/manual probes
+MALFORMED_JSON_PROBE=PASS
+PROMPT_INJECTION_INERT=True
+PROMPT_INJECTION_DECISION=rejected
+PROMPT_INJECTION_CODE=unsupported_technology
+STALE_TEMPLATE_HASH_MATCHES=False
+STALE_TEMPLATE_STATUS=stale
+STALE_TEMPLATE_CODE=latex_template_stale
+
+Dirty-worktree and cleanup receipt
+- The worktree was already dirty before Task 0.2 and remained dirty; unrelated changes were preserved.
+- Task 0.2 scoped status showed exactly 13 new tailoring JSON files plus the new test before this receipt.
+- STAGED_FILE_COUNT=0
+- TEMP_ARTIFACTS_CREATED=0
+- No malformed-JSON temp file was created; the malformed payload was piped in memory.
+- CLEANUP_RESULT=PASS

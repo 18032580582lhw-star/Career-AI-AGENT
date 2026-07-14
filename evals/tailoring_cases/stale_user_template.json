@@ -1,0 +1,35 @@
+{
+  "case_id": "stale_user_template",
+  "resume_text": "Support operations analyst\n- Built weekly service-level reports in SQL.\n- Coordinated incident follow-ups with support leads.",
+  "jd_text": "Support Operations Analyst. Requires SQL reporting and incident coordination.",
+  "proposal": {
+    "strategy": "conservative",
+    "rewritten_resume": "Support Operations Analyst\n- Built weekly service-level reports in SQL.\n- Coordinated incident follow-ups with support leads.",
+    "changes": [
+      {
+        "change_id": "normalize-title",
+        "proposed_text": "Support Operations Analyst",
+        "evidence": [
+          "Support operations analyst"
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "stale",
+  "expected_codes": [
+    "latex_template_stale"
+  ],
+  "rendering_expectations": {
+    "mode": "user_latex",
+    "template_text": "\\documentclass{article}\n\\begin{document}\n%%CAREER_AI_EXPERIENCE%%\n\\end{document}",
+    "engine": "tectonic",
+    "engine_available": true,
+    "template_hash_matches": false,
+    "expected_status": "stale",
+    "must_contain": [],
+    "must_not_contain": [
+      "stale artifact reported as rendered"
+    ]
+  }
+}

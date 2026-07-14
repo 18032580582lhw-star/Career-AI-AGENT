@@ -1,0 +1,38 @@
+{
+  "case_id": "user_template_latex",
+  "resume_text": "Business analyst\n- Mapped invoice workflows with finance partners.\n- Built SQL reports for monthly reconciliation.",
+  "jd_text": "Finance Systems Analyst. Requires workflow analysis, finance stakeholder partnership, and SQL reporting.",
+  "proposal": {
+    "strategy": "conservative",
+    "rewritten_resume": "Finance Systems Analyst\n- Mapped invoice workflows with finance partners.\n- Built SQL reports for monthly reconciliation.",
+    "changes": [
+      {
+        "change_id": "align-title",
+        "proposed_text": "Finance Systems Analyst",
+        "evidence": [
+          "Business analyst",
+          "Mapped invoice workflows with finance partners."
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [],
+  "rendering_expectations": {
+    "mode": "user_latex",
+    "template_text": "\\documentclass{article}\n\\begin{document}\n%%CAREER_AI_SUMMARY%%\n%%CAREER_AI_EXPERIENCE%%\n\\end{document}",
+    "engine": "tectonic",
+    "engine_available": true,
+    "template_hash_matches": true,
+    "expected_status": "rendered",
+    "must_contain": [
+      "Finance Systems Analyst",
+      "monthly reconciliation"
+    ],
+    "must_not_contain": [
+      "%%CAREER_AI_SUMMARY%%",
+      "%%CAREER_AI_EXPERIENCE%%"
+    ]
+  }
+}

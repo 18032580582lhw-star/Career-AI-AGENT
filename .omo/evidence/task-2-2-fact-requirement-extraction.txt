@@ -1,0 +1,42 @@
+Task 2.2 - evidence-backed fact and typed requirement extraction
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+Scope decision
+- Task 2.2 proves deterministic extraction into evidence-backed candidate facts and typed JD requirements.
+- Structural prevention of JD-to-candidate provenance and confirmation-aware provenance are explicitly Task 2.3 and are not claimed complete here.
+- Semantic rejection of hostile or low-quality lines remains a Safety/Adequacy concern; extractor text is treated as inert data.
+
+Automated verification
+- .venv/Scripts/python.exe -m pytest tests/test_candidate_fact_extractor.py tests/test_jd_requirement_extractor.py -q -> 7 passed in 0.96s.
+- Scoped Ruff -> All checks passed.
+- Scoped BasedPyright -> 0 errors, 0 warnings, 0 notes.
+- check-no-excuse-rules.py -> no violations in 6 files.
+- Full repository pytest after the preceding boundary repair -> 185 passed.
+
+Manual QA observables
+- Genuine Chinese resume and JD text were passed directly through the public extraction functions.
+- Every candidate evidence span matched source[start_offset:end_offset] exactly.
+- Repeated calls with the same source and source ID produced identical models and IDs.
+- Kubernetes present only in JD requirements did not appear in facts extracted from the isolated resume input.
+- Empty resume input returned an empty typed extraction.
+- Prompt-injection strings remained inert text; no instruction was executed.
+
+Adversarial QA
+- malformed input: whitespace-only input returns empty typed collections; non-string input is rejected by Python's typed boundary rather than coerced.
+- prompt injection: content is data only; semantic filtering is not claimed at this extraction layer.
+- cancel/resume: pure deterministic extraction has no mutable checkpoint and can be rerun safely.
+- stale state: IDs are deterministic for the same exact source and source artifact ID; source-change staleness is handled by later run state.
+- dirty worktree: existing untracked/modified files preserved; no reset, stage, commit, or push.
+- hung commands: focused commands completed within 30 seconds.
+- flaky tests: deterministic repeat-call assertions pass; no randomness or wall-clock dependency exists.
+- misleading success output: JD structural isolation is explicitly deferred to Task 2.3 and not represented as complete.
+- repeated interruptions: stateless extraction is rerunnable and produces the same output for the same input.
+
+Independent audit follow-through
+- JD-backed CandidateFact construction remains possible through the generic source ID API: carry into Task 2.3.
+- Prompt-injection/garbage lines can become paragraph facts or fallback responsibilities: carry into Safety/Adequacy design and Task 2.3 boundary hardening.
+- Duplicate and sub-line evidence granularity are quality improvements, not required for the Task 2.2 typed extraction gate; retain as later eval cases.
+
+Cleanup receipt
+- Manual probes were in-memory only and created no service, port, browser, container, or persistent temporary file.

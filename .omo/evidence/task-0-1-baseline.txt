@@ -1,0 +1,7 @@
+Task 0.1 baseline verification — 2026-07-11 Asia/Hong_Kong
+
+- pytest: 103 passed in 6.16s
+- ruff check .: All checks passed
+- basedpyright: 0 errors, 0 warnings, 0 notes
+- dirty worktree preserved; no reset, stage, commit, push, or unrelated edit
+- deterministic eval known failure remains an evaluation result, not a command failure

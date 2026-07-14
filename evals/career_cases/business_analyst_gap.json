@@ -1,0 +1,23 @@
+{
+  "id": "business_analyst_gap",
+  "name": "Synthetic Business Analyst gap sample",
+  "input": {
+    "resume_text": "Business analyst with experience improving Excel reporting workflows for operations teams.\n- Built Excel trackers for weekly operations reviews.\n- Documented business analysis findings for process improvement.\n- Coordinated stakeholder updates on reporting timelines.",
+    "jd_text": "Role: Business Analyst\nWe need a Business Analyst for analytics-heavy operations planning.\nRequirements include business analysis, Excel, Python, SQL, dashboard storytelling, and stakeholder communication."
+  },
+  "expected": {
+    "role_title": "Business Analyst",
+    "required_missing_keywords": [
+      "dashboard storytelling",
+      "python",
+      "sql",
+      "stakeholder communication"
+    ],
+    "forbidden_new_claims": [
+      "built production machine learning models",
+      "managed a team of 15 analysts",
+      "owned company-wide data warehouse migration"
+    ],
+    "prompt_strategy_count_min": 3
+  }
+}

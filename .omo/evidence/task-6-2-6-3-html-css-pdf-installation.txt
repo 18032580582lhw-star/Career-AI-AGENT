@@ -1,0 +1,47 @@
+Task 6.2 + Task 6.3 evidence: HTML/CSS PDF and renderer installation checks
+
+Scope completed
+- HTML/CSS PDF renderer uses Playwright Chromium print-to-PDF through SubprocessPlaywrightPdfEngine.
+- HTML output uses print CSS with @page Letter, @media print, and break-inside/page-break-inside avoidance.
+- Noto Sans and Noto Sans SC font assets are bundled under src/career_ai/rendering/assets/fonts.
+- Generated font CSS references local file:// package assets and targeted checks found no Google/CDN/raw GitHub font providers.
+- CLI install-renderer --html installs Playwright Chromium and returns code 14 with actionable messages on missing Playwright, timeout, startup failure, or installer failure.
+- doctor checks html_css_template, noto_font_bundle, output_write_permission, playwright_python_package, playwright_cli, and playwright_chromium.
+
+Manual install and doctor probes
+- Before Playwright was installed in .venv, career-ai-agent install-renderer --html returned exit code 14 with: Playwright is not importable. Install project dependencies first, then rerun: career-ai-agent install-renderer --html.
+- After installing the Playwright Python package, career-ai-agent install-renderer --html completed with exit code 0 and installed Chromium.
+- .venv/Scripts/career-ai-agent.exe doctor reported HTML renderer: available and PASS for template, fonts, write permission, Playwright package, Playwright CLI, and Chromium launch.
+
+Phase gate QA
+- Real AcceptedResumeDocument fixture rendered to DOCX, HTML, and Playwright PDF at .omo/evidence/phase-6-html-pdf-qa/.
+- Probe results:
+  - docx_has_cjk=True
+  - pdf_has_cjk=True
+  - html_has_cjk=True
+  - font_refs_network=False
+  - pdf_pages=1
+- Poppler pdfinfo confirmed Chromium/Skia PDF, 1 page, Letter size 612 x 792 pts.
+- Poppler raster QA generated .omo/evidence/phase-6-html-pdf-qa/resume-page-1.png.
+- Visual inspection confirmed Chinese and English mixed text rendered without mojibake.
+- Pixel boundary check: image_size=1275x1650, content_bbox=93,97,1182,1022, margins_px=93,97,92,627, touches_edge=False.
+
+Verification commands
+- .venv/Scripts/python.exe -m pytest tests/test_document_renderers.py tests/test_cli.py -q -> 15 passed
+- .venv/Scripts/python.exe -m pytest -q -> 307 passed
+- .venv/Scripts/python.exe -m ruff check . -> All checks passed
+- .venv/Scripts/python.exe -m basedpyright -> 0 errors, 0 warnings
+- .venv/Scripts/career-ai-agent.exe doctor -> HTML renderer available, all renderer checks PASS
+- .venv/Scripts/career-ai-agent.exe eval --case-dir evals/career_cases --prompt-dir prompts -> known sample_product_analyst missing-keywords failure remains visible
+- .venv/Scripts/career-ai-agent.exe eval-matrix --case-dir evals/career_cases --prompt-dir prompts -> known sample_product_analyst missing-keywords failure remains visible
+- git diff --check -> clean
+
+Known truthful signal
+- eval and eval-matrix still report sample_product_analyst missing dashboard storytelling and stakeholder communication. This is pre-existing roadmap signal and is not hidden by renderer success.
+
+Post-implementation review
+- review_goal_constraints: PASS, high confidence, no blocking issues.
+- review_qa_execution: PASS, high confidence, no blocking issues.
+- review_code_quality: PASS, high confidence, no blocking issues. Non-blocking note: html_installation.py is close to the 250 pure-LOC ceiling and should be split before future expansion.
+- review_security: PASS, low non-blocking informational note only: doctor prints the local absolute output directory in write-permission status.
+- review_context_mining: PASS, high confidence, no missed Task 6.2/6.3 requirements found.

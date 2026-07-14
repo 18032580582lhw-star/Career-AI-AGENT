@@ -3,7 +3,7 @@ from pathlib import Path
 from docx import Document
 from pypdf import PdfWriter
 
-from career_ai.text_processing import extract_resume_text, match_keywords
+from career_ai.text_processing import extract_keywords, extract_resume_text, match_keywords
 
 
 def test_extract_resume_text_reads_txt_and_docx_files(tmp_path: Path) -> None:
@@ -41,3 +41,18 @@ def test_match_keywords_scores_strong_and_weak_matches() -> None:
 
     assert strong.score >= 90
     assert weak.score <= 25
+
+
+def test_extract_keywords_preserves_jd_skill_phrases() -> None:
+    # Given: a JD with multi-word career skills.
+    jd_text = (
+        "Requirements include dashboard storytelling, stakeholder communication, "
+        "Python, SQL, and Streamlit."
+    )
+
+    # When: keywords are extracted for matching and eval grading.
+    keywords = extract_keywords(jd_text)
+
+    # Then: phrase-level requirements are preserved, not reduced to single words.
+    assert "dashboard storytelling" in keywords
+    assert "stakeholder communication" in keywords

@@ -1,0 +1,32 @@
+{
+  "case_id": "safe_substantial_rewrite",
+  "resume_text": "Product analyst\n- Built a weekly hiring funnel dashboard in Streamlit.\n- Used Python and SQL to analyze interview conversion trends.\n- Presented findings to recruiting stakeholders.",
+  "jd_text": "AI Product Analyst. Requires Python, SQL, Streamlit, dashboard storytelling, and stakeholder communication.",
+  "proposal": {
+    "strategy": "substantial",
+    "rewritten_resume": "Product Analyst | Hiring Analytics\n- Built a Streamlit dashboard for weekly hiring-funnel reporting and stakeholder review.\n- Analyzed interview conversion trends with Python and SQL, then presented findings to recruiting stakeholders.",
+    "changes": [
+      {
+        "change_id": "rewrite-summary-and-bullets",
+        "proposed_text": "Built a Streamlit dashboard for weekly hiring-funnel reporting and stakeholder review.",
+        "evidence": [
+          "Built a weekly hiring funnel dashboard in Streamlit.",
+          "Presented findings to recruiting stakeholders."
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [],
+  "rendering_expectations": {
+    "mode": "none",
+    "template_text": "",
+    "engine": "",
+    "engine_available": false,
+    "template_hash_matches": true,
+    "expected_status": "not_requested",
+    "must_contain": [],
+    "must_not_contain": []
+  }
+}

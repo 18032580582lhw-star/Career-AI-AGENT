@@ -1,0 +1,36 @@
+{
+  "case_id": "responsibility_seniority_metric_inflation",
+  "resume_text": "Marketing analyst\n- Supported a campaign dashboard used by the marketing team.\n- Prepared monthly channel summaries for a manager.",
+  "jd_text": "Senior Growth Lead. Own channel strategy, lead a team, and improve conversion performance.",
+  "proposal": {
+    "strategy": "substantial",
+    "rewritten_resume": "Senior Growth Lead\n- Owned global channel strategy and managed a team of eight.\n- Increased conversion by 45% through executive growth leadership.",
+    "changes": [
+      {
+        "change_id": "inflate-role-and-impact",
+        "proposed_text": "Owned global channel strategy, managed a team of eight, and increased conversion by 45%.",
+        "evidence": [
+          "Supported a campaign dashboard used by the marketing team.",
+          "Prepared monthly channel summaries for a manager."
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "rejected",
+  "expected_codes": [
+    "unsupported_responsibility",
+    "unsupported_seniority",
+    "unsupported_metric"
+  ],
+  "rendering_expectations": {
+    "mode": "none",
+    "template_text": "",
+    "engine": "",
+    "engine_available": false,
+    "template_hash_matches": true,
+    "expected_status": "not_requested",
+    "must_contain": [],
+    "must_not_contain": []
+  }
+}

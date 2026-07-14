@@ -1,0 +1,36 @@
+{
+  "case_id": "system_latex",
+  "resume_text": "Analytics engineer\n- Built SQL data models and Python quality checks.\n- Documented trusted datasets for analysts.",
+  "jd_text": "Analytics Engineer. Requires SQL modeling, Python, data quality, and documentation.",
+  "proposal": {
+    "strategy": "conservative",
+    "rewritten_resume": "Analytics Engineer\n- Built SQL data models and Python data-quality checks.\n- Documented trusted datasets for analysts.",
+    "changes": [
+      {
+        "change_id": "align-data-quality",
+        "proposed_text": "Built SQL data models and Python data-quality checks.",
+        "evidence": [
+          "Built SQL data models and Python quality checks."
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [],
+  "rendering_expectations": {
+    "mode": "system_latex",
+    "template_text": "",
+    "engine": "tectonic",
+    "engine_available": true,
+    "template_hash_matches": true,
+    "expected_status": "rendered",
+    "must_contain": [
+      "Analytics Engineer",
+      "data-quality"
+    ],
+    "must_not_contain": [
+      "\\write18"
+    ]
+  }
+}

@@ -14,6 +14,7 @@ SKILL_TERMS: Final[tuple[str, ...]] = (
     "cover letter",
     "data analysis",
     "dashboard",
+    "dashboard storytelling",
     "evaluation",
     "excel",
     "jd analysis",
@@ -24,6 +25,7 @@ SKILL_TERMS: Final[tuple[str, ...]] = (
     "resume",
     "sql",
     "stakeholder",
+    "stakeholder communication",
     "streamlit",
 )
 

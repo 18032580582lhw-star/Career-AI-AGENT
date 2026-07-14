@@ -1,0 +1,47 @@
+﻿Task 12.1 + Task 12.2 evidence
+
+Scope
+- Added career_ai.application.TailoringApplicationService as the shared
+  workspace/tailoring/rendering facade.
+- Updated host_proposal_cli.py to call TailoringApplicationService for prepare,
+  validate, confirm, API tailoring, render, and inspect-latex.
+- Replaced root app.py with a thin Streamlit entrypoint.
+- Added streamlit_app/main.py, streamlit_app/uploads.py, and
+  streamlit_app/history_panel.py.
+- Streamlit now exposes resume upload/text, JD URL/text, optional resume.tex
+  upload, prepare, API generation, host proposal validation, Safety/Adequacy
+  state, renderer selection, LaTeX inspection, mapping confirmation prompt,
+  unsafe findings, Tectonic/XeLaTeX status label, compile error summary label,
+  workspace run replay, and legacy summary-only replay.
+- Renderer action is disabled unless the last validation state is accepted.
+- User template uploads are persisted to workspace-owned paths; original source
+  patching still occurs only through run-owned renderer outputs.
+
+Verification
+- .venv/Scripts/python.exe -m pytest tests/test_application_service.py tests/test_app_layout.py tests/test_skill_init.py tests/test_host_proposal_cli.py tests/test_host_proposal_cli_misc.py -q -> 17 passed.
+- .venv/Scripts/python.exe -m pytest -q -> 338 passed.
+- .venv/Scripts/ruff.exe check . -> All checks passed.
+- .venv/Scripts/basedpyright.exe -> 0 errors, 0 warnings, 0 notes.
+- Streamlit health probe:
+  streamlit run app.py --server.headless=true --server.port=8508 --browser.gatherUsageStats=false
+  GET http://127.0.0.1:8508/_stcore/health -> 200 ok.
+- career-ai-agent eval -> known sample_product_analyst missing_keywords failure.
+- career-ai-agent eval-matrix -> known fake-default sample_product_analyst missing_keywords failure.
+
+Line-count audit
+- src/career_ai/streamlit_app/main.py: 178 pure LOC.
+- src/career_ai/streamlit_app/uploads.py: 48 pure LOC.
+- src/career_ai/streamlit_app/history_panel.py: 58 pure LOC.
+- src/career_ai/application/tailoring_service.py: 151 pure LOC.
+- src/career_ai/skills/installation.py: 155 pure LOC.
+
+Adversarial notes
+- malformed_input: strict host proposal validation remains routed through the shared service.
+- prompt_injection: Streamlit does not validate facts itself; service/CLI route to local harnesses.
+- stale_state: Streamlit replays workspace run manifests and labels legacy history as summary-only.
+- dirty_worktree: no reset, stage, commit, push, or unrelated cleanup.
+- hung_commands: Streamlit health probe completed within timeout.
+- misleading_success_output: known eval/matrix failures retained in evidence.
+
+Cleanup
+- Streamlit process remains running for user trial at http://127.0.0.1:8508, listener owning process 276.

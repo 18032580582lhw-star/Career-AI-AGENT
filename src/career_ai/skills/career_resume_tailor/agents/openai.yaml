@@ -1,0 +1,13 @@
+name: career-resume-tailor
+protocol: openai-agents
+entrypoint: SKILL.md
+commands:
+  - career-ai-agent init
+  - career-ai-agent prepare
+  - career-ai-agent validate-draft
+  - career-ai-agent confirm
+  - career-ai-agent render
+  - career-ai-agent inspect-latex
+windows:
+  argument_policy: explicit-json-files
+  heredoc: forbidden

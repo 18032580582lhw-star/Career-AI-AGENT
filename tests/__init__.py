@@ -1,1 +1,1 @@
-"""Test package for AI Career Intelligence Suite."""
+"""Test support package for shared typed fixtures."""

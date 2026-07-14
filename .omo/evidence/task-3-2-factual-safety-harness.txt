@@ -1,0 +1,46 @@
+Task 3.2 - factual Safety Harness with stable violation codes
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+TDD and audit
+- Baseline: 39 related contract/model/golden tests passed; full Ruff and BasedPyright were clean.
+- Red 1: six tests failed because the safety module did not exist.
+- Red 2: four adversarial tests exposed unclaimed changes, unrelated confirmed text, duplicate fact IDs, and unclassified unsupported claims.
+- Red 3: two tests exposed supported/confirmation provenance confusion and change/claim fact-set mismatch.
+- Independent read-only audit reproduced the unclaimed-change and confirmed-content bypasses before repair.
+
+Implementation
+- Pure evaluate_factual_safety(ResumeTailoringProposal, tuple[CandidateFact, ...]) API.
+- Stable SafetyViolationCode values for unknown/duplicate facts, unsupported technology/responsibility/seniority/metric/general claims, inference confirmation, provenance mismatch, confirmation statement mismatch, and change/claim mismatch.
+- Finding IDs are SHA-256-derived from code and reference, not list position.
+- Safety result is deliberately separate from adequacy and accepted state.
+- Split into safety.py orchestration, safety_rules.py deterministic rules, and safety_models.py contracts to stay below 250 pure LOC.
+
+Verification
+- Focused pytest: 12 passed in 0.96s.
+- Full pytest: 199 passed in 6.92s.
+- Full Ruff: All checks passed.
+- Full BasedPyright: 0 errors, 0 warnings, 0 notes.
+- no-excuse audit: no violations in 4 files.
+- doctor: fake/local-fake capabilities reported successfully.
+- eval/eval-matrix executed successfully and truthfully retained the known sample_product_analyst missing-keywords failure.
+- git diff --check: exit 0.
+
+Manual API QA
+- Constructed a real typed proposal whose unclaimed change replaced Python with Kubernetes.
+- Public Safety API returned passed=false and one error finding with code unsupported_technology.
+- Stable finding id was safety-ad725c1ca2c4; binary observable PASS=True.
+
+Adversarial QA
+- malformed input: strict Proposal/CandidateFact Pydantic contracts reject malformed state.
+- prompt injection: text is treated only as data; cited facts remain authoritative and novel tokens fall to unsupported_claim.
+- cancel/resume: pure deterministic evaluation has no mutable checkpoint and is rerunnable.
+- stale state: explicitly out of Safety scope; Safety pass is not accepted state and Task 3.4 owns stale transitions.
+- dirty worktree: all prior modified/untracked files preserved; no reset, stage, commit, or push.
+- hung commands: every verification command completed within 120-second bounds.
+- flaky tests: no randomness, provider, network, or wall-clock dependency.
+- misleading success output: confirmation warnings set passed=false; known eval failure was reported, not hidden.
+- repeated interruptions: stable input produces stable findings and content-derived IDs.
+
+Cleanup receipt
+- Manual QA used an in-memory proposal only; no persistent temp files, services, ports, browsers, or containers.

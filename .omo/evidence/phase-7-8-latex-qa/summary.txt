@@ -1,0 +1,8 @@
+Phase 7/8 LaTeX manual QA
+system artifacts: ['resume.tex']
+user profile mappings: ['summary', 'skills']
+user tex exists: True
+no-engine result: latex_no_engine
+fallback backend: latex-xelatex
+fallback pdf exists: True
+real PATH engines: tectonic=missing, xelatex=missing in this environment

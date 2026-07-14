@@ -1,0 +1,21 @@
+{
+  "id": "sample_product_analyst",
+  "name": "Synthetic AI Product Analyst sample",
+  "input": {
+    "resume_text": "Product analyst with 3 years of experience building Streamlit dashboards for hiring teams.\n- Built a Streamlit dashboard for weekly hiring funnel reporting.\n- Analyzed interview conversion trends using Python and SQL.\n- Evaluated LLM workflow quality and prompt engineering tradeoffs for candidate tools.\n- Presented product insights to stakeholders and improved reporting workflows.",
+    "jd_text": "Role: AI Product Analyst\nWe are hiring an AI Product Analyst to evaluate LLM-powered workflows for job seekers.\nRequirements include Python, SQL, Streamlit, prompt engineering, data analysis, dashboard storytelling, stakeholder communication, and LLM evaluation."
+  },
+  "expected": {
+    "role_title": "AI Product Analyst",
+    "required_missing_keywords": [
+      "dashboard storytelling",
+      "stakeholder communication"
+    ],
+    "forbidden_new_claims": [
+      "managed a team of 12",
+      "increased conversion by 40%",
+      "owned production Kubernetes infrastructure"
+    ],
+    "prompt_strategy_count_min": 3
+  }
+}

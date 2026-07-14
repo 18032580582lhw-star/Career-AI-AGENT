@@ -1,0 +1,63 @@
+Task 7.1 + Task 8.1 evidence: system LaTeX renderer and user resume.tex support
+
+Scope:
+- Added system LaTeX source rendering from AcceptedResumeDocument.
+- Added context-aware escaping contexts for text, URL, email, section title, bullet, date, command argument, and custom macro argument.
+- Added Tectonic-first / XeLaTeX fallback compiler runner using argv-only subprocess calls and restricted cwd.
+- Added no-engine failure for latex-pdf while preserving .tex generation.
+- Added user-owned resume.tex inspection with documentclass, preamble hash, body range, custom commands, packages, fonts, sections, marker mappings, unsafe findings, and mapping-confirmation flag.
+- Added marker-only safe patch pipeline for summary, skills, experience, projects, and education.
+- Added LaTeX safety detection for write18, directlua, openin/openout, unsafe input/include paths, dynamic input paths, and shellesc package.
+
+Changed files:
+- src/career_ai/rendering/latex/models.py
+- src/career_ai/rendering/latex/errors.py
+- src/career_ai/rendering/latex/escaping.py
+- src/career_ai/rendering/latex/safety.py
+- src/career_ai/rendering/latex/renderer.py
+- src/career_ai/rendering/latex/compiler.py
+- src/career_ai/rendering/latex/user_template.py
+- src/career_ai/rendering/latex/__init__.py
+- src/career_ai/rendering/latex/assets/system_resume.tex
+- src/career_ai/rendering/__init__.py
+- tests/test_latex_primitives.py
+- tests/test_latex_renderer.py
+- tests/test_user_latex_template.py
+
+Automated verification:
+- .venv/Scripts/python.exe -m pytest tests/test_latex_primitives.py tests/test_latex_renderer.py tests/test_user_latex_template.py -q -> 26 passed
+- .venv/Scripts/python.exe -m pytest -q -> 322 passed
+- .venv/Scripts/python.exe -m ruff check . -> All checks passed
+- .venv/Scripts/python.exe -m basedpyright -> 0 errors, 0 warnings
+- git diff --check -> passed
+- .venv/Scripts/career-ai-agent.exe doctor -> passed; HTML renderer available
+- .venv/Scripts/career-ai-agent.exe eval --case-dir evals/career_cases --prompt-dir prompts -> known sample_product_analyst missing-keywords failure
+- .venv/Scripts/career-ai-agent.exe eval-matrix --case-dir evals/career_cases --prompt-dir prompts -> known sample_product_analyst missing-keywords failure
+
+Manual QA:
+- Generated system .tex artifact under .omo/evidence/phase-7-8-latex-qa/system/resume.tex.
+- Generated patched user-template .tex artifact under .omo/evidence/phase-7-8-latex-qa/user-template/resume.tex.
+- Generated fake-engine fallback PDF under .omo/evidence/phase-7-8-latex-qa/user-template/resume.pdf.
+- Recorded manual QA summary at .omo/evidence/phase-7-8-latex-qa/summary.txt.
+
+Environment note:
+- PATH did not contain tectonic or xelatex in this environment.
+- Real Tectonic/XeLaTeX CJK PDF compilation could not be executed locally.
+- The implemented no-engine path returns latex_no_engine without blocking .tex generation.
+- The implemented fallback path was exercised with a deterministic fake engine: configured Tectonic failed, configured XeLaTeX succeeded.
+
+Adversarial classes:
+- malformed_input: malformed LaTeX structure, no markers, invalid executable commands, and unsafe input/include paths reject or surface stable typed failures.
+- prompt_injection: model/user text is escaped as inert LaTeX in all supported contexts; raw model output is never executed as LaTeX.
+- stale_state: user template patch checks template_hash before writing new source; live render-manifest stale enforcement remains Task 9.1.
+- dirty_worktree: pre-existing dirty worktree was preserved; no stage, commit, push, reset, or unrelated overwrite.
+- hung_commands: compiler runner has bounded timeouts; verification commands completed within configured timeouts.
+- flaky_tests: focused suite and full pytest use deterministic fake engines and local files.
+- misleading_success_output: known eval/matrix missing-keywords failure remains recorded despite command exit 0.
+- repeated_interruptions: pure render/inspect/patch/compile calls are rerunnable and content-addressed through output hashes where renderer artifacts are produced.
+- dependency_unavailable: no-engine latex-pdf path returns latex_no_engine while .tex remains available.
+
+Cleanup:
+- Fake engine lived in TemporaryDirectory and was removed.
+- Persistent QA artifacts retained under .omo/evidence/phase-7-8-latex-qa for phase-gate inspection.
+- No services, ports, browsers, containers, or background LaTeX processes left running.

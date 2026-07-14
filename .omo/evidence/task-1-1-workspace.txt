@@ -1,0 +1,36 @@
+Task 1.1 - versioned workspace manifest, safe paths, atomic JSON writes
+Date: 2026-07-11 Asia/Hong_Kong
+
+TDD receipts
+- Baseline characterization first: tests/test_workspace.py legacy history fixture: 1 passed.
+- Missing API red: ModuleNotFoundError: No module named 'career_ai.workspace'; 1 failed, 1 passed.
+- Focused green: .venv/Scripts/python.exe -m pytest tests/test_workspace.py -q -> 10 passed.
+
+Focused quality gates
+- .venv/Scripts/ruff.exe check src/career_ai/workspace tests/test_workspace.py -> All checks passed.
+- .venv/Scripts/basedpyright.exe src/career_ai/workspace tests/test_workspace.py -> 0 errors, 0 warnings, 0 notes.
+- check-no-excuse-rules.py src/career_ai/workspace tests/test_workspace.py -> no violations in 7 files.
+- Pure LOC: errors.py 48; models.py 28; paths.py 14; service.py 64; storage.py 28; __init__.py 32; test_workspace.py 95.
+
+Adversarial coverage
+- malformed manifest -> WorkspaceManifestError
+- stale schema version -> WorkspaceSchemaVersionError with actual/supported values
+- direct and nested parent traversal -> WorkspacePathError
+- persisted traversal path -> manifest validation failure
+- interrupted partial temp debris -> ignored; exact committed manifest remains authoritative
+- legacy .career_ai/history.json -> readable and byte-identical; initialization does not rewrite it
+- repeated initialization -> manifest bytes remain identical
+- dirty worktree -> preserved; no stage, commit, reset, CLI edit, or app edit
+- misleading success -> the first smoke command had a Python SyntaxError followed by cleanup output; it was rejected and rerun with an explicit LASTEXITCODE gate
+
+Manual real-API QA
+Command surface: PowerShell invokes .venv/Scripts/python.exe and imports career_ai.workspace.create_workspace.
+qa_root=C:\Users\Sherlock Lee\AppData\Local\Temp\career-ai-workspace-qa-c1067865d7d54cab9a90ad97c6933772
+manifest_exists=True
+manifest={"schema_version":1,"paths":{"sources":".career_ai/sources","tasks":".career_ai/tasks","artifacts":".career_ai/artifacts"}}
+second_initialization_idempotent=True
+cleanup_complete=True
+
+Full-suite status
+- Full pytest was attempted after focused gates. Collection was blocked by a concurrent unrelated file: tests/test_latex_primitives.py imports missing career_ai.rendering.latex.LatexContext.
+- Full Ruff and BasedPyright were run independently and currently fail only in concurrent unrelated rendering/LaTeX and tailoring-golden-fixture files. Focused workspace gates remain green.

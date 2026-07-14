@@ -1,0 +1,34 @@
+Task: Phase 9 Render Manifest anti-tamper + Phase 10 no-API Host Proposal CLI
+Date: 2026-07-14
+Status: completed
+
+Scope completed:
+- Extended RenderManifest with exact RenderEngine identity and backend/engine pairing.
+- Preserved explicit backend values: docx, html-playwright, latex-source, latex-tectonic, latex-xelatex; generic "pdf" remains invalid.
+- Added .career_ai/runs/<run_id> host-run protocol with request, context, proposal, validation, draft, candidate-facts, run-manifest, and rendered artifacts.
+- Added render-time source/template/proposal/validation/accepted-document rehashing; source or template drift writes stale run-manifest and exits before rendering.
+- Added machine-readable CLI commands: init, prepare, validate-draft, confirm, tailor, render, inspect-latex, install-renderer --html, install-renderer --latex.
+- validate-draft parses strict JSON only; Markdown code fences are rejected rather than guessed.
+- Host Proposal tailor path uses run_host_proposal_workflow and does not construct a provider client.
+- API tailor path now asks the provider for conservative, ats-aligned, and impact-narrative proposal attempts, then runs the same local Safety/Adequacy/state harnesses.
+- render supports docx, pdf, tex, latex-pdf, and all; all emits DOCX/HTML-PDF/.tex even when LaTeX engines are missing, while latex-pdf reports latex_no_engine.
+- doctor reports workspace, prompt/schema/template resources, Chromium, Tectonic, XeLaTeX, font bundle, LaTeX package cache, Skill status, duplicate Skill, and no-API provider-call status.
+- install-renderer --latex does not install system TeX tools silently; it prints platform guidance when no engine is found.
+
+Regression and adversarial coverage:
+- tests/test_phase9_render_manifest.py covers exact backend/engine identity and rejects generic pdf backend.
+- tests/test_host_proposal_cli.py covers prepare output, strict no-code-fence JSON validation, stale template mutation before render, render-all without LaTeX engines, and host no-provider behavior.
+- tests/test_host_proposal_cli_misc.py covers init and inspect-latex CLI behavior.
+- Existing protocol, renderer, LaTeX, generation, and CLI tests were rerun with the new manifest engine requirement.
+
+Verification:
+- .\.venv\Scripts\python.exe -m pytest -q -> 332 passed.
+- .\.venv\Scripts\ruff.exe check . -> All checks passed.
+- .\.venv\Scripts\basedpyright.exe -> 0 errors, 0 warnings, 0 notes.
+- .\.venv\Scripts\career-ai-agent.exe doctor -> HTML renderer available; Tectonic FAIL; XeLaTeX FAIL; LaTeX package cache WARN; no-API provider calls PASS.
+- .\.venv\Scripts\career-ai-agent.exe eval --case-dir evals\career_cases --prompt-dir prompts -> known sample_product_analyst missing_keywords failure retained.
+- .\.venv\Scripts\career-ai-agent.exe eval-matrix --case-dir evals\career_cases --prompt-dir prompts -> known fake-default missing_keywords failure retained.
+- git diff --check -> passed.
+
+Known environment signal:
+- This machine still lacks Tectonic and XeLaTeX, so latex-pdf cannot compile with a real engine locally. DOCX, HTML-PDF, and .tex rendering remain available.

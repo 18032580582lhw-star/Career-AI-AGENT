@@ -1,0 +1,44 @@
+Task 3.3 - optimization Adequacy Harness and thresholds
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+TDD and prior audit
+- Resumed from the saved audit that rejected a caller-trusted evidence_supported_ids design.
+- Red tests first proved the protocol could not represent rewritten_resume or accepted no-op proposals.
+- Added adversarial tests for arbitrary target labels, non-supported matches, exact 8/9 vs 9/10 thresholds, ambiguous two-fact joins, duplicate IDs, keyword stuffing, readability regression, and whitespace-only output.
+
+Implementation
+- ResumeTailoringProposal now hashes a required visible rewritten_resume and permits changes=() for safe no-op output.
+- AdequacyContext packages facts, requirements, EvidenceRequirementMatch records, baseline covered IDs, and baseline resume text.
+- New coverage counts only when one change joins its source_fact_ids and target_requirement_ids through a SUPPORTED/CONFIRMED EvidenceRequirementMatch.
+- Required coverage denominator excludes non-required requirements; 90% uses exact integer ratio, not rounded display score.
+- Below 90%, an evidence-backed uncovered required opportunity requires at least 10 percentage points gain and a material change using at least two facts relevant to that opportunity.
+- High coverage or no safe opportunity permits byte-identical no-op output.
+- Whole rewritten resume is checked for meaningful JD-term keyword density and newly introduced lines over 60 words.
+- Stable findings use content-derived IDs; orchestration, models, rules, and test factories remain below 250 pure LOC.
+
+Verification
+- Focused adequacy/protocol/safety tests: 40 passed.
+- Full pytest: 212 passed in 7.62s.
+- Full BasedPyright: 0 errors, 0 warnings, 0 notes.
+- Scoped no-excuse audit: no violations after splitting test factories.
+- git diff --check: exit 0.
+- Ruff import formatting was mechanically corrected; final full gate is rerun with Task 3.4.
+
+Manual API QA
+- A real typed proposal with two same-requirement evidence joins moved required coverage from 50 to 60.
+- Public API observable: passed=True, baseline=50, projected=60, codes=(), PASS=True.
+
+Adversarial QA
+- malformed input: unknown/duplicate fact, requirement, match, and baseline references produce stable findings; whitespace-only output is rejected by Pydantic.
+- prompt injection: text cannot resolve IDs or create coverage; only typed joins count.
+- cancel/resume: pure deterministic evaluation is safely rerunnable.
+- stale state: out of adequacy scope; Task 3.4 owns source hash state.
+- dirty worktree: preserved; no reset, stage, commit, or push.
+- hung commands: all commands completed within bounded time.
+- flaky tests: no clock, provider, network, or randomness.
+- misleading success output: the earlier five-test false-positive design was removed; target labels alone cannot create gain.
+- repeated interruptions: same inputs yield stable scores, codes, and finding IDs.
+
+Cleanup receipt
+- Manual QA was in-memory; no persistent temp files, services, ports, browsers, or containers.

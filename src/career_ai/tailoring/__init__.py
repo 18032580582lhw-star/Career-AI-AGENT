@@ -1,0 +1,41 @@
+"""Typed factual-safety contracts for resume tailoring."""
+
+from career_ai.tailoring.models import (
+    CandidateFact,
+    CandidateFactId,
+    CandidateFactProvenance,
+    EvidenceProvenance,
+    EvidenceRequirementMatch,
+    EvidenceSpan,
+    EvidenceSpanId,
+    FactRequirementMatchId,
+    JDRequirement,
+    JDRequirementId,
+    MatchStatus,
+    RequirementPriority,
+    SourceArtifact,
+    SourceArtifactId,
+    UserConfirmationProvenance,
+    describe_match_status,
+    describe_requirement_priority,
+)
+
+__all__ = [
+    "CandidateFact",
+    "CandidateFactId",
+    "CandidateFactProvenance",
+    "EvidenceProvenance",
+    "EvidenceRequirementMatch",
+    "EvidenceSpan",
+    "EvidenceSpanId",
+    "FactRequirementMatchId",
+    "JDRequirement",
+    "JDRequirementId",
+    "MatchStatus",
+    "RequirementPriority",
+    "SourceArtifact",
+    "SourceArtifactId",
+    "UserConfirmationProvenance",
+    "describe_match_status",
+    "describe_requirement_priority",
+]

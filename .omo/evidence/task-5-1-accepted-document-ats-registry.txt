@@ -1,0 +1,56 @@
+Task: Task 5.1 Add AcceptedResumeDocument, ATS normalization, and renderer registry
+Date: 2026-07-13 Asia/Hong_Kong
+Session: codex:current-thread-20260713
+Result: PASS
+
+Implemented contract
+- Added separate untrusted ResumeDocumentDraft and renderer-only AcceptedResumeDocument contracts.
+- Added StructuredResumeTailoringProposal so an exact normalized document-structure SHA-256 participates in the canonical proposal hash and therefore the validation hash without changing the legacy ResumeTailoringProposal schema or visible rewritten_resume.
+- Required Summary, Skills, Experience, and Education; required canonical populated-section order and evidence references on all visible entries.
+- Added strict HTTP(S) validation for ResumeLink and URL-shaped identity contacts.
+- Added the acceptance gate: accepted lifecycle only, empty findings, canonical proposal/validation hash recomputation, exact structure binding, fact authorization, prompt-injection rejection, and normalized proposal-text equality.
+- Added semantic-preserving ATS normalization: NFC, full-width ASCII/space normalization, configurable punctuation API, BOM/bidi/control/ZWSP cleanup, CJK and meaningful ZWJ/ZWNJ preservation, and normalized email/URL handling.
+- Added immutable RendererRegistry/RendererRequest with DOCX, HTML-Playwright, and LaTeX backend identities, stable success metadata, duplicate/raw/unknown/mutable backend rejection, internal acceptance dispatch, adapter-outcome revalidation, and sanitized expected failures.
+- Preserved the legacy CareerFitReport DOCX and Cover Letter paths. Concrete renderers and manifest/path/stale-artifact enforcement remain Tasks 6-9.
+
+TDD and defect evidence
+- Initial blocker test collection failed because ResumeDocumentDraft did not exist.
+- Public registry resolver regression failed because require() returned a private wrapper; the resolver was then removed entirely after adversarial review showed raw-adapter bypass.
+- Natural RendererSuccess construction with empty artifacts initially leaked Pydantic ValidationError; it now returns renderer_invalid_outcome.
+- Invalid ports, whitespace URLs, broken IPv6, dot hosts, and empty-authority URLs initially passed; contract tests now reject them for links and URL-shaped contacts.
+- Cold import exposed a rendering/document-acceptance cycle hidden by full-suite import order; ATS normalization core moved to the cycle-free tailoring boundary and rendering retains a public facade.
+- Adversarial review found warning/INFO finding forgery, mutable backends, prompt-control variants, section-partition ambiguity, and model_copy proposal-hash bypass; each now has a regression and a closed boundary.
+
+Final verification
+- .venv/Scripts/python.exe -m pytest -q -> 297 passed
+- .venv/Scripts/python.exe -m ruff check . -> All checks passed
+- .venv/Scripts/python.exe -m basedpyright -> 0 errors, 0 warnings, 0 notes
+- check-no-excuse-rules.py scoped Phase 5 files -> no violations in 25 files
+- git diff --check -> pass
+- focused Phase 5 suite repeated five times -> 48 passed on every run before final hardening; final full suite remained green
+- cold import document_acceptance then career_ai.rendering.RendererRegistry -> PASS
+- career-ai-agent doctor -> PASS, fake/local-fake capabilities reported
+
+Manual QA
+- Three registered representative backends all returned RendererSuccess.
+- All three received identical core text and validation hash.
+- Every received document structure hash matched StructuredResumeTailoringProposal.document_structure_hash.
+- Visible core text contained no machine marker; CJK was preserved and ZWSP removed.
+- Raw, unknown, stale, forged, mutable, and invalid-outcome paths were blocked with stable typed failures.
+- TemporaryDirectory cleanup succeeded; no service, port, browser, container, or artifact residue remained.
+
+Independent review-work
+- Goal and constraint lane: PASS.
+- Code quality lane: PASS.
+- Defensive security lane: PASS.
+- Hands-on QA lane: PASS.
+- Context, compatibility, and scope lane: PASS.
+
+Known truthful non-Phase-5 failure
+- career-ai-agent eval exited 0 but reported 0/1 passed: sample_product_analyst still misses dashboard storytelling and stakeholder communication.
+- career-ai-agent eval-matrix exited 0 but reported fake-default 0/1 passed for the same known missing-keywords check.
+- This known evaluation signal was preserved and is not represented as a Phase 5 pass.
+
+Deferred security/lifecycle work
+- OutputArtifact parent-traversal/path enforcement, render manifests, live source/template re-hashing, and stale-artifact enforcement remain explicitly assigned to Task 9.1.
+- No stage, commit, push, reset, or unrelated dirty-worktree cleanup was performed.

@@ -10,8 +10,8 @@ Build a local Streamlit MVP that accepts resume text from upload or sample data,
 - `career_ai.models`: frozen Pydantic response models for JD analysis, matching, missing skills, bullet suggestions, cover letter, and prompt strategy results.
 - `career_ai.text_processing`: text extraction, normalization, keyword and skill matching.
 - `career_ai.analysis`: pure orchestration functions that produce the MVP outputs.
-- `career_ai.prompt_harness`: loads prompt markdown files and scores at least three prompting strategies with deterministic rubric metrics.
-- `prompts/`: separate markdown prompt templates.
+- `career_ai.prompt_harness`: retains the legacy profile surface while grading three evidence-only proposal strategies with local harnesses.
+- `prompts/`: legacy Markdown profiles that enable the strategy view but do not authorize claims.
 
 ## Safety Rules
 

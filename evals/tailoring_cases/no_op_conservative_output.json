@@ -1,0 +1,22 @@
+{
+  "case_id": "no_op_conservative_output",
+  "resume_text": "Data analyst\n- Used Python and SQL to build weekly retention dashboards.\n- Presented retention findings to product managers.",
+  "jd_text": "Data Analyst. Requires Python, SQL, retention dashboards, and product stakeholder communication.",
+  "proposal": {
+    "strategy": "conservative",
+    "rewritten_resume": "Data analyst\n- Used Python and SQL to build weekly retention dashboards.\n- Presented retention findings to product managers.",
+    "changes": []
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [],
+  "rendering_expectations": {
+    "mode": "none",
+    "template_text": "",
+    "engine": "",
+    "engine_available": false,
+    "template_hash_matches": true,
+    "expected_status": "not_requested",
+    "must_contain": [],
+    "must_not_contain": []
+  }
+}

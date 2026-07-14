@@ -1,0 +1,63 @@
+Task: Task 13.1 + Task 13.2 + Final Verification Wave
+Plan: .omo/plans/high-trust-resume-skill-latex.md
+Status: completed, not committed
+Date: 2026-07-14
+
+Scope delivered:
+- Expanded evals/career_cases from 1 to 3 release-quality deterministic cases:
+  sample_product_analyst, business_analyst_gap, career_content_writer_gap.
+- Added release coverage tests for eval bank breadth, package resource smoke,
+  cross-host policy fixture parity, HTML renderer non-executable URL output,
+  and LaTeX comment masking vs active shell-escape package detection.
+- Added wheel smoke coverage that builds a no-dependency wheel and verifies:
+  career-ai-agent entry point, canonical Skill bundle, workflow reference,
+  system LaTeX template, and bundled Noto font asset.
+- Fixed final compatibility issue: render on a prepared but non-validated run now
+  returns a stable HostRunError instead of leaking FileNotFoundError traceback.
+
+Focused verification:
+- pytest tests/test_eval_loader.py tests/test_eval_runner.py
+  tests/test_model_harness_matrix.py tests/test_cli.py -q -> 16 passed.
+- career-ai-agent eval --case-dir evals/career_cases --prompt-dir prompts ->
+  Total cases: 3, Passed cases: 3, Failed cases: 0.
+- career-ai-agent eval-matrix --case-dir evals/career_cases --prompt-dir prompts ->
+  Total rows: 1, Passed rows: 1, Failed rows: 0, fake-default passed=3 failed=0.
+- pytest tests/test_packaging_smoke.py -q -> 1 passed.
+- pytest tests/test_host_proposal_cli_render.py tests/test_application_service.py -q ->
+  5 passed.
+
+Full verification:
+- python -m pytest -q -> 348 passed in 52.24s.
+- ruff check . -> All checks passed.
+- basedpyright -> 0 errors, 0 warnings, 0 notes.
+- career-ai-agent doctor -> HTML renderer available; Workspace, Prompt,
+  Schema, Template, Font bundle, Skill version/hash, Duplicate Skill, and
+  No-API provider calls PASS; Tectonic FAIL; XeLaTeX FAIL; LaTeX package cache WARN.
+- career-ai-agent eval -> 3 passed, 0 failed.
+- career-ai-agent eval-matrix -> 1 row passed, fake-default passed=3 failed=0.
+- git diff --check -> passed.
+
+Manual / release smoke:
+- Temporary accepted-run render smoke initialized Codex, OpenCode, and Claude
+  adapters in one workspace, rendered format=all with disabled LaTeX engines,
+  and produced:
+  docx rendered, pdf rendered, tex rendered, latex-pdf unavailable latex_no_engine.
+- Temporary render smoke workspace removed after cleanup.
+- Streamlit health http://127.0.0.1:8508/_stcore/health -> 200 ok.
+- Wheel/package smoke is covered by tests/test_packaging_smoke.py and verified
+  package data without network dependency installation.
+
+Adversarial classes:
+- malformed_input: render-before-validation now returns a stable CLI error.
+- prompt_injection: Skill policy and renderer security tests keep host/model text inert.
+- stale_state: existing stale render tests remain green and final full suite passes.
+- dirty_worktree: existing dirty worktree preserved; no reset, stage, commit, or push.
+- hung_commands: full gates and manual smoke used bounded command timeouts.
+- flaky_tests: deterministic eval/matrix now run 3 local cases with no provider/network randomness.
+- misleading_success_output: doctor still reports missing Tectonic/XeLaTeX honestly while
+  .tex/DOCX/HTML-PDF remain available and latex-pdf reports latex_no_engine.
+- repeated_interruptions: init --agent all remains idempotent and render smoke cleanup is explicit.
+
+Cleanup:
+- Temporary smoke workspaces were removed.
+- Existing Streamlit server on 127.0.0.1:8508 remains available for user trial.

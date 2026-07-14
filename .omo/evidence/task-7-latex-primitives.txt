@@ -1,0 +1,66 @@
+Task 7 LaTeX primitives verification receipt
+Date: 2026-07-11 Asia/Hong_Kong
+
+Scope
+- Added only process-free LaTeX primitives, a package asset, and focused tests.
+- No AcceptedResumeDocument integration, CLI, compilation, user-template patching,
+  pyproject edit, staging, commit, or shell execution in library code.
+
+Existing DOCX exporter baseline
+- src/career_ai/exporters.py consumes the frozen CareerFitReport directly.
+- It creates parent directories, saves with python-docx, and returns output_path.
+- No shared renderer registry, AcceptedResumeDocument, or LaTeX behavior existed.
+
+TDD receipt
+- Initial focused red: career_ai.rendering did not exist.
+- Behavioral red: LatexContext and the primitive public API did not exist.
+- Focused green:
+  .\.venv\Scripts\python.exe -m pytest tests\test_latex_primitives.py -q
+  11 passed in 1.05s
+
+Focused static gates
+- .\.venv\Scripts\ruff.exe check src\career_ai\rendering tests\test_latex_primitives.py
+  All checks passed.
+- .\.venv\Scripts\basedpyright.exe src\career_ai\rendering tests\test_latex_primitives.py
+  0 errors, 0 warnings, 0 notes
+- OMO Python no-excuse audit: no violations in 10 files.
+- Largest new production module: safety.py, 87 pure LOC (all below 250).
+
+Manual real-API probe
+{
+  "safe_cjk": true,
+  "safe_findings": [],
+  "malicious_findings": [
+    "latex_shell_escape",
+    "latex_lua_execution",
+    "latex_input_outside_root"
+  ],
+  "prompt_injection_inert": true,
+  "path_command_inert": true,
+  "temp_created": true,
+  "malformed_code": "latex_missing_end_document",
+  "temp_removed": true
+}
+
+Probe interpretation
+- A bundled fontspec/Noto CJK template inspected successfully and retained Chinese text.
+- write18, directlua, and traversal input produced stable codes despite is_valid=true.
+- Prompt-injection prose and path-like LaTeX commands remained inert after escaping.
+- Malformed document boundaries returned a typed stable error.
+- Inspection did not execute LaTeX, resolve includes, or read referenced files.
+
+Repository-wide gate status at receipt time
+- Full pytest was attempted twice; the latest collection was blocked by concurrent
+  test_source_ingestion.py and test_tailoring_protocol_contracts.py imports for modules
+  not yet present at that instant.
+- Full Ruff was attempted twice and reported only concurrent tailoring/ingestion files.
+- Full BasedPyright was attempted twice and reported only concurrent tailoring,
+  ingestion, protocol-contract, and golden-fixture files.
+- These unrelated files were not modified by this task.
+
+Dirty-worktree and cleanup receipt
+- The worktree was dirty before this task and remains dirty; unrelated changes were preserved.
+- Only src/career_ai/rendering/, tests/test_latex_primitives.py, and this evidence receipt
+  belong to this task.
+- The manual probe temporary directory was removed (temp_removed=true).
+- No files were staged or committed.

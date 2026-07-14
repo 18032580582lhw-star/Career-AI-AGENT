@@ -1,0 +1,33 @@
+{
+  "case_id": "multi_evidence_merge",
+  "resume_text": "Operations analyst\n- Automated weekly CSV cleanup with Python.\n- Maintained an SQL reporting dataset.\n- Reduced report preparation from two hours to thirty minutes.",
+  "jd_text": "Operations Data Analyst. Requires Python automation, SQL reporting, and process improvement.",
+  "proposal": {
+    "strategy": "evidence_merge",
+    "rewritten_resume": "Operations Data Analyst\n- Automated weekly reporting preparation with Python and an SQL dataset, reducing preparation time from two hours to thirty minutes.",
+    "changes": [
+      {
+        "change_id": "merge-reporting-evidence",
+        "proposed_text": "Automated weekly reporting preparation with Python and an SQL dataset, reducing preparation time from two hours to thirty minutes.",
+        "evidence": [
+          "Automated weekly CSV cleanup with Python.",
+          "Maintained an SQL reporting dataset.",
+          "Reduced report preparation from two hours to thirty minutes."
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [],
+  "rendering_expectations": {
+    "mode": "none",
+    "template_text": "",
+    "engine": "",
+    "engine_available": false,
+    "template_hash_matches": true,
+    "expected_status": "not_requested",
+    "must_contain": [],
+    "must_not_contain": []
+  }
+}

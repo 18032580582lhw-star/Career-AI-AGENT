@@ -1,0 +1,47 @@
+Task 1.2 - immutable source ingestion verification
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+Resume point
+- Existing tests and implementation were present from 2026-07-11, but the plan checkbox and ledger completion were absent.
+- Independent audit found malformed DOCX bytes escaped as zipfile.BadZipFile.
+
+TDD repair
+- Baseline characterization: valid DOCX extraction test passed before the repair.
+- Red: tests/test_source_ingestion.py produced 1 failed, 9 passed because BadZipFile escaped.
+- Green: source_extraction.py catches BadZipFile at the DOCX boundary and maps it to IngestionErrorCode.SOURCE_READ_FAILED.
+
+Automated verification
+- .venv/Scripts/python.exe -m pytest tests/test_source_ingestion.py -q -> 10 passed in 1.50s.
+- .venv/Scripts/ruff.exe check src/career_ai/workspace tests/test_source_ingestion.py -> All checks passed.
+- .venv/Scripts/basedpyright.exe src/career_ai/workspace tests/test_source_ingestion.py -> 0 errors, 0 warnings, 0 notes.
+- check-no-excuse-rules.py on the changed source and test -> no violations in 2 files.
+- .venv/Scripts/python.exe -m pytest -q -> 185 passed in 6.73s.
+- git diff --check -> exit 0.
+- Full-repository Ruff and BasedPyright remain blocked by pre-existing unfinished tailoring/protocol files outside Task 1.2; scoped gates are clean.
+
+Manual QA observables
+- Duplicate TXT ingestion returns the same artifact identity.
+- Stored SHA-256 matches the original bytes.
+- Prompt-injection text remains inert source data and is preserved byte-for-byte.
+- Retry after a missing partial record reconstructs the record with the same identity.
+- Mutating the user source creates a new identity while the old content-addressed blob remains unchanged.
+- Unsupported .exe input is rejected with unsupported_media_type.
+- Direct JD text remains job_description data.
+- Malformed DOCX is rejected as typed source_read_failed after the repair.
+
+Adversarial QA
+- malformed input: invalid UTF-8, unsupported suffix, encrypted/scanned PDF, invalid LaTeX, and malformed DOCX are typed failures.
+- prompt injection: hostile instructions are stored as inert source/JD bytes and never executed or promoted.
+- cancel/resume: retry after partial record loss restores the same content-addressed identity.
+- stale state: source mutation creates a new hash and preserves the prior blob; downstream run staleness belongs to Task 3.4.
+- dirty worktree: pre-existing modified/untracked files were preserved; no reset, stage, commit, or push.
+- hung commands: one parallel verification batch exceeded 60 seconds, was terminated, and every gate was rerun sequentially with a 30-second bound.
+- flaky tests: the independent audit repeated the focused suite five times; all runs passed.
+- misleading success output: the malformed-DOCX raw exception was treated as failure despite the prior happy-path suite passing.
+- repeated interruptions: duplicate and partial-record retries are idempotent; no explicit transaction API is claimed.
+
+Cleanup receipt
+- career-ai-task-1-2-* temporary workspaces: absent after TemporaryDirectory exit.
+- career-ai-malformed-* temporary workspace: absent after TemporaryDirectory exit.
+- No services, ports, browser sessions, or containers were created.

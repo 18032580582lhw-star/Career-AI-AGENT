@@ -1,0 +1,42 @@
+# Task 6.1 Evidence: DOCX and HTML/Playwright Rendering
+
+Status: completed on 2026-07-13 Asia/Hong_Kong.
+
+Scope
+- Added accepted-document DOCX rendering through `DocxResumeRenderer`.
+- Added static HTML plus Playwright PDF rendering through `HtmlPlaywrightResumeRenderer`.
+- Added content-addressed renderer artifacts for DOCX, HTML, and PDF outputs.
+- Preserved the legacy `CareerFitReport` DOCX exporters and public API.
+- Declared `playwright>=1.45` in `pyproject.toml`; the current local venv has not installed it, so the default HTML/Playwright path returns a stable backend-unavailable failure here.
+
+Automated verification
+- `.venv/Scripts/python.exe -m pytest tests/test_document_renderers.py -q` -> 5 passed.
+- `.venv/Scripts/python.exe -m pytest tests/test_document_renderers.py tests/test_renderer_registry.py -q` -> 18 passed.
+- `.venv/Scripts/python.exe -m pytest tests/test_document_renderers.py tests/test_renderer_registry.py tests/test_exporters.py tests/test_public_api.py -q` -> 21 passed.
+- `.venv/Scripts/python.exe -m pytest -q` -> 302 passed.
+- `.venv/Scripts/python.exe -m ruff check .` -> passed.
+- `.venv/Scripts/python.exe -m basedpyright` -> 0 errors.
+- `.venv/Scripts/career-ai-agent.exe doctor` -> fake/local-fake provider reported.
+- `.venv/Scripts/career-ai-agent.exe eval --case-dir evals/career_cases --prompt-dir prompts` -> known `sample_product_analyst` missing-keywords failure retained.
+- `.venv/Scripts/career-ai-agent.exe eval-matrix --case-dir evals/career_cases --prompt-dir prompts` -> known fake-default row failure retained.
+- `git diff --check` -> passed.
+- `Get-ChildItem -Recurse -Filter check-no-excuse-rules.py` -> script not present in this checkout, so the no-excuse gate could not be run directly.
+
+Manual QA
+- Tool: inline Python through `.venv/Scripts/python.exe -`.
+- DOCX channel: `RendererRegistry((DocxResumeRenderer(),)).render(RenderBackend.DOCX, request)` wrote `resume.docx`; `python-docx` read it back and confirmed `Ada Example` and `Professional Summary`.
+- HTML channel: `HtmlPlaywrightResumeRenderer(pdf_engine=ManualPdfEngine()).render(...)` wrote `resume.html` and `resume.pdf`; HTML was read from disk and verified not to contain a raw `<script`; the PDF file began with `%PDF-1.4`.
+- Production dependency channel: `RendererRegistry((HtmlPlaywrightResumeRenderer(),)).render(RenderBackend.HTML_PLAYWRIGHT, request)` returned `renderer_backend_unavailable` because Playwright is not installed in the current venv.
+- Manual output sample: `docx_artifact=resume.docx sha=61b108699895c02200fc311b6e8624207048c39053e95aa92209af35abe7d67d`, `html_pdf_artifacts=['resume.html', 'resume.pdf']`.
+- Cleanup: `TemporaryDirectory` reported removed; no services, ports, browsers, containers, or persistent QA files were left running.
+
+Adversarial QA
+- Malformed input: renderer registry acceptance boundary rejects invalid documents before renderer side effects; injected missing and failing Playwright engines produce stable backend-unavailable and output-failed outcomes.
+- Prompt injection / HTML injection: HTML output escapes visible document text and tests verify raw script tags are absent.
+- Authorization bypass: renderers only receive `AcceptedResumeDocument` through the registry acceptance gate; direct renderer tests use prebuilt accepted contracts.
+- Stale state: non-accepted/stale document blocking remains owned by the Phase 5 registry and Task 9.1 will add persistent live re-hash enforcement.
+- Dirty worktree: pre-existing dirty and untracked files were preserved; no reset, stage, commit, or push was run.
+- Hung commands: Playwright subprocess has a bounded timeout and maps timeout to a stable output failure.
+- Flaky tests: focused renderer and registry suites passed repeatedly, and full pytest passed with 302 tests.
+- Misleading success output: known eval/eval-matrix failures remain explicitly recorded and were not presented as green.
+- Repeated interruptions: renderer calls are deterministic and content-addressed by output file hash.

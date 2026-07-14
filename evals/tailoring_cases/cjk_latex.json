@@ -1,0 +1,37 @@
+{
+  "case_id": "cjk_latex",
+  "resume_text": "候选人：软件测试工程师\n- 使用 Python 编写接口自动化测试。\n- 与研发团队共同分析缺陷原因。",
+  "jd_text": "QA Automation Engineer. Requires Python API testing and collaboration with engineering teams.",
+  "proposal": {
+    "strategy": "conservative",
+    "rewritten_resume": "候选人 | 软件测试工程师\n- 使用 Python 编写接口自动化测试。\n- 与研发团队共同分析缺陷原因。",
+    "changes": [
+      {
+        "change_id": "cjk-heading",
+        "proposed_text": "候选人 | 软件测试工程师",
+        "evidence": [
+          "候选人：软件测试工程师"
+        ],
+        "requires_confirmation": false
+      }
+    ]
+  },
+  "expected_decision": "accepted",
+  "expected_codes": [],
+  "rendering_expectations": {
+    "mode": "system_latex",
+    "template_text": "",
+    "engine": "xelatex",
+    "engine_available": true,
+    "template_hash_matches": true,
+    "expected_status": "rendered",
+    "must_contain": [
+      "候选人",
+      "软件测试工程师",
+      "Python"
+    ],
+    "must_not_contain": [
+      "�"
+    ]
+  }
+}

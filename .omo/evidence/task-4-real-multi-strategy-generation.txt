@@ -1,0 +1,26 @@
+Task 4 - real multi-strategy generation and unified proposal workflow
+Date: 2026-07-12 Asia/Hong_Kong
+Session: codex:current-thread-20260712
+
+Implementation
+- Replaced prompt-text rubric scoring with conservative, ATS-aligned, and impact-narrative typed ResumeTailoringProposal strategies.
+- Every strategy is graded by the existing Safety, Adequacy, and lifecycle state machine; ties prefer the lower-risk strategy deterministically.
+- API-provider and host proposals share TailoringTaskPackage validation and the same local grading path.
+- Provider requests carry the versioned task package, immutable baseline, typed evidence, response schema, canonical hash instructions, delimiters, and an explicit untrusted-data instruction.
+- Fake provider responses without a proposal return a safe non-accepted issue instead of raising.
+- Added source/template/run binding, unknown target-requirement rejection, prompt-control rejection, semantic fact-recombination rejection, and full baseline preservation.
+- The legacy prompt directory remains a compatibility profile gate; Markdown text does not authorize output.
+
+Verification
+- Full pytest: 250 passed.
+- Full Ruff: passed.
+- Full BasedPyright: 0 errors, 0 warnings, 0 notes.
+- git diff --check: passed.
+- Focused real-path manual probe: local conservative/rejected, ATS-aligned/accepted, impact-narrative/rejected; host accepted at 100; API accepted at 100 with one typed request.
+- doctor passed with fake/local-fake capabilities.
+- eval and eval-matrix retain the known sample_product_analyst missing-keywords failure; it is not reported as green.
+
+Adversarial closure
+- Malformed provider envelopes return invalid_provider_proposal_envelope without acceptance.
+- Prompt-control text, forged target requirements, cross-run replays, unsupported fact recombination, stale bindings, no-match inputs, and empty legacy profiles are covered by tests.
+- Pre-existing dirty worktree was preserved; no reset, stage, commit, push, temporary service, port, browser, or container was created.
