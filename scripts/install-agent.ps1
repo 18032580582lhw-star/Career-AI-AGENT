@@ -38,28 +38,42 @@ function Test-CommandAvailable {
     return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Invoke-Native {
+    param(
+        [string]$Command,
+        [string[]]$Arguments,
+        [switch]$Quiet
+    )
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        if ($Quiet) {
+            & $Command @Arguments *> $null
+        }
+        else {
+            & $Command @Arguments
+        }
+        $script:InstallAgentLastNativeExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+}
+
 function Find-Python {
     if (Test-CommandAvailable "py") {
-        try {
-            & py -3.12 --version | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                return @{ Command = "py"; PrefixArgs = @("-3.12") }
-            }
-        }
-        catch {
+        Invoke-Native -Command "py" -Arguments @("-3.12", "--version") -Quiet
+        if ($script:InstallAgentLastNativeExitCode -eq 0) {
+            return @{ Command = "py"; PrefixArgs = @("-3.12") }
         }
     }
     foreach ($candidate in @("python3.12", "python", "python3")) {
         if (-not (Test-CommandAvailable $candidate)) {
             continue
         }
-        try {
-            & $candidate --version | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                return @{ Command = $candidate; PrefixArgs = @() }
-            }
-        }
-        catch {
+        Invoke-Native -Command $candidate -Arguments @("--version") -Quiet
+        if ($script:InstallAgentLastNativeExitCode -eq 0) {
+            return @{ Command = $candidate; PrefixArgs = @() }
         }
     }
     throw "Python 3.12 was not found. Install Python >=3.12 and rerun this script."
@@ -70,8 +84,8 @@ function Invoke-Python {
         [hashtable]$Python,
         [string[]]$Arguments
     )
-    & $Python.Command @($Python.PrefixArgs + $Arguments)
-    if ($LASTEXITCODE -ne 0) {
+    Invoke-Native -Command $Python.Command -Arguments @($Python.PrefixArgs + $Arguments)
+    if ($script:InstallAgentLastNativeExitCode -ne 0) {
         throw "Python command failed: $($Arguments -join ' ')"
     }
 }
@@ -81,8 +95,8 @@ function Invoke-Checked {
         [string]$Command,
         [string[]]$Arguments
     )
-    & $Command @Arguments
-    if ($LASTEXITCODE -ne 0) {
+    Invoke-Native -Command $Command -Arguments $Arguments
+    if ($script:InstallAgentLastNativeExitCode -ne 0) {
         throw "Command failed: $Command $($Arguments -join ' ')"
     }
 }
