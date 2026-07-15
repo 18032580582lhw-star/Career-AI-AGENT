@@ -6,7 +6,7 @@ Intelligence Suite local agent from a GitHub project URL.
 Use the raw version of this file when asking an agent to install the project:
 
 ```text
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/docs/agent-install.md
+https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/docs/agent-install.md
 ```
 
 ## Agent Prompt
@@ -16,17 +16,21 @@ Give this prompt to Codex, Claude Code, or OpenCode:
 ```text
 Install the local AI Career Intelligence Suite agent from this GitHub project:
 
-<GITHUB_PROJECT_URL>
+https://github.com/18032580582lhw-star/Career-AI-AGENT
 
 First read the full raw install guide:
-https://raw.githubusercontent.com/<OWNER>/<REPO>/main/docs/agent-install.md
+https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/docs/agent-install.md
 
 Do not rely on a summarized web page. Follow the guide, run the installer or
 manual commands, then verify with doctor, init, eval, and eval-matrix. If a
 dependency is missing, stop and report the exact repair command.
 ```
 
-Replace `<OWNER>/<REPO>` and `<GITHUB_PROJECT_URL>` with the real repository.
+This guide is configured for:
+
+```text
+https://github.com/18032580582lhw-star/Career-AI-AGENT
+```
 
 ## What Gets Installed
 
@@ -55,16 +59,16 @@ Codex and OpenCode share `.agents/skills/career-resume-tailor`. Claude Code uses
 Safer reviewed-script flow:
 
 ```powershell
-irm https://raw.githubusercontent.com/<OWNER>/<REPO>/main/scripts/install-agent.ps1 -OutFile install-agent.ps1
+irm https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/scripts/install-agent.ps1 -OutFile install-agent.ps1
 Get-Content .\install-agent.ps1
-.\install-agent.ps1 -RepoUrl "https://github.com/<OWNER>/<REPO>.git" -Agent all
+.\install-agent.ps1 -RepoUrl "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" -Agent all
 ```
 
 Useful options:
 
 ```powershell
 .\install-agent.ps1 `
-  -RepoUrl "https://github.com/<OWNER>/<REPO>.git" `
+  -RepoUrl "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" `
   -InstallRoot "$HOME\career-agents" `
   -Agent all `
   -SkipEval
@@ -78,16 +82,16 @@ existing checkout.
 Safer reviewed-script flow:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<OWNER>/<REPO>/main/scripts/install-agent.sh -o install-agent.sh
+curl -fsSL https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/scripts/install-agent.sh -o install-agent.sh
 sed -n '1,220p' install-agent.sh
-bash install-agent.sh --repo-url "https://github.com/<OWNER>/<REPO>.git" --agent all
+bash install-agent.sh --repo-url "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" --agent all
 ```
 
 Useful options:
 
 ```bash
 bash install-agent.sh \
-  --repo-url "https://github.com/<OWNER>/<REPO>.git" \
+  --repo-url "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" \
   --install-root "$HOME/career-agents" \
   --agent all \
   --skip-eval
@@ -103,8 +107,8 @@ If an agent cannot run the installer script, use these steps.
 Windows / PowerShell:
 
 ```powershell
-git clone https://github.com/<OWNER>/<REPO>.git
-cd <REPO>
+git clone https://github.com/18032580582lhw-star/Career-AI-AGENT.git
+cd Career-AI-AGENT
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -e .
@@ -117,8 +121,8 @@ py -3.12 -m venv .venv
 macOS / Linux:
 
 ```bash
-git clone https://github.com/<OWNER>/<REPO>.git
-cd <REPO>
+git clone https://github.com/18032580582lhw-star/Career-AI-AGENT.git
+cd Career-AI-AGENT
 python3.12 -m venv .venv
 ./.venv/bin/python -m pip install --upgrade pip
 ./.venv/bin/python -m pip install -e .
