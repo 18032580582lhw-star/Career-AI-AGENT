@@ -19,6 +19,7 @@
 ### GitHub 发布与真实安装 URL 固化
 
 <!-- WORKLOG-ENTRY:github-publish-url-fix-2026-07-15 -->
-- 状态：发布处理中。
+- 状态：已发布到 GitHub `main`。
 - 工作内容：用户提供真实仓库 `https://github.com/18032580582lhw-star/Career-AI-AGENT` 后，将 `docs/agent-install.md` 中的 `<OWNER>/<REPO>`、`<GITHUB_PROJECT_URL>` 等占位符替换为可直接访问的 GitHub 与 raw.githubusercontent.com URL。
 - 目标效果：Codex、Claude Code、OpenCode 或人工只需要读取 `https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/docs/agent-install.md`，即可按文档下载脚本、克隆仓库、安装本地 agent 并执行 `doctor`、`init`、`eval`、`eval-matrix` 验证。
+- 发布结果：已配置 remote `origin` 指向 `https://github.com/18032580582lhw-star/Career-AI-AGENT.git`，并将本地 `codex/harness-first-roadmap` 分支推送到远端 `main`。
