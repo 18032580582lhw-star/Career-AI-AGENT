@@ -55,3 +55,20 @@
 - 手工验收：临时 workspace 执行 `init --agent all` 后，`render --format all --disable-latex-engines` 输出 DOCX/PDF/TEX 成功，LaTeX-PDF 如实返回 `latex_no_engine`；临时 workspace 已清理；Streamlit health `http://127.0.0.1:8508/_stcore/health` 返回 `200 ok`。
 - 验证：`python -m pytest -q` 通过（348 passed）；`ruff check .` 通过；`basedpyright` 通过（0 errors, 0 warnings, 0 notes）；`career-ai-agent doctor` 仍如实报告 Tectonic/XeLaTeX FAIL 与 LaTeX package cache WARN；`career-ai-agent eval` 通过（3 passed, 0 failed）；`career-ai-agent eval-matrix` 通过（fake-default passed=3 failed=0）；`git diff --check` 通过。
 - 证据：`.omo/evidence/task-13-release-verification.txt`、`.omo/start-work/ledger.jsonl` 末尾记录、`.omo/plans/high-trust-resume-skill-latex.md` 已勾选 Task 13.1、13.2 与 F1-F4。
+
+### README 中英双语截至目前总结
+
+<!-- WORKLOG-ENTRY:readme-bilingual-current-summary-2026-07-14 -->
+- 状态：已完成但未提交。
+- 工作内容：按用户要求阅读项目任务、路线图、`.omo` ledger/evidence 和 2026-07-08 至 2026-07-14 工作日志后，重写根目录 `README.md`，形成中英双语的截至目前项目总结。
+- 变更情况：README 现在覆盖项目定位、当前完成状态、最终验证结果、环境诚实状态、能力范围、非目标、快速开始、CLI 命令、高可信 tailoring 工作流、开发验证标准和架构导览。
+- 事实边界：文档明确记录 2026-07-14 release verification 的 `348 passed`、eval/eval-matrix `3 passed, 0 failed`，同时保留本机 Tectonic/XeLaTeX 缺失导致 `latex-pdf` 返回 `latex_no_engine` 的环境限制。
+- 证据来源：`README.md`、`docs/roadmaps/harness-first-roadmap.md`、`.omo/plans/high-trust-resume-skill-latex.md`、`.omo/start-work/ledger.jsonl`、`.omo/evidence/task-13-release-verification.txt` 和每日工作日志。
+
+### README 中文版与英文版拆分
+
+<!-- WORKLOG-ENTRY:readme-zh-en-split-2026-07-14 -->
+- 状态：已完成但未提交。
+- 工作内容：按用户要求将双语 README 拆分为独立中文版和英文版 Markdown。
+- 变更情况：新增 `README.zh.md` 与 `README.en.md`，分别保留完整中文和英文项目总结；根 `README.md` 改为语言选择入口，链接到两个版本。
+- 验证计划：文档拆分后运行 `git diff --check`，确认没有 Markdown 空白错误。
