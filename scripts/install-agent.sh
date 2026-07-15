@@ -97,9 +97,10 @@ repo_name_from_url() {
 find_python() {
   for candidate in python3.12 python3 python; do
     if command -v "$candidate" >/dev/null 2>&1; then
-      "$candidate" --version >/dev/null
-      printf '%s\n' "$candidate"
-      return 0
+      if "$candidate" --version >/dev/null 2>&1; then
+        printf '%s\n' "$candidate"
+        return 0
+      fi
     fi
   done
   echo "Python 3.12 was not found. Install Python >=3.12 and rerun this script." >&2
