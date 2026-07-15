@@ -62,7 +62,20 @@ def test_prepare_outputs_machine_readable_host_proposal_package(tmp_path: Path) 
     assert payload.source_hashes.keys() == {"jd", "resume"}
     assert payload.template_type == "user"
     assert payload.template_hash is not None
-    assert payload.proposal_schema["title"] == "ResumeTailoringProposal"
+    schema_defs_value = payload.proposal_schema["$defs"]
+    schema_options_value = payload.proposal_schema["anyOf"]
+    assert isinstance(schema_defs_value, dict)
+    assert isinstance(schema_options_value, list)
+    schema_def_names = {str(name) for name in schema_defs_value}
+    schema_refs = {
+        ref
+        for option in schema_options_value
+        if isinstance(option, dict) and isinstance(ref := option.get("$ref"), str)
+    }
+    assert "HostStructuredProposalPackage" in schema_def_names
+    assert "ResumeTailoringProposal" in schema_def_names
+    assert "#/$defs/HostStructuredProposalPackage" in schema_refs
+    assert "#/$defs/ResumeTailoringProposal" in schema_refs
     assert "validate-draft" in payload.next_machine_instruction
 
 

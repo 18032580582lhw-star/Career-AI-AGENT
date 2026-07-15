@@ -3,11 +3,13 @@
 from career_ai.tailoring.host_run_models import (
     RENDER_STALE_EXIT_CODE,
     HostPrepareResult,
+    HostProposalInput,
     HostRenderFormat,
     HostRenderItem,
     HostRenderResult,
     HostRunError,
     HostRunRequest,
+    HostStructuredProposalPackage,
     HostValidationResult,
 )
 from career_ai.tailoring.host_run_persistence import load_run_context
@@ -23,11 +25,13 @@ from career_ai.tailoring.host_run_validation import (
 __all__ = [
     "RENDER_STALE_EXIT_CODE",
     "HostPrepareResult",
+    "HostProposalInput",
     "HostRenderFormat",
     "HostRenderItem",
     "HostRenderResult",
     "HostRunError",
     "HostRunRequest",
+    "HostStructuredProposalPackage",
     "HostValidationResult",
     "confirm_host_fact",
     "load_run_context",

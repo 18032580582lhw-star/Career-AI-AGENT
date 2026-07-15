@@ -194,6 +194,29 @@ def test_cli_eval_prints_deterministic_eval_summary() -> None:
     assert "sample_product_analyst" in result.stdout
 
 
+def test_cli_eval_fails_when_case_directory_is_missing(tmp_path: Path) -> None:
+    # Given: a case directory path that does not exist.
+    missing_dir = tmp_path / "missing-cases"
+    runner = CliRunner()
+
+    # When: eval is run against the missing directory.
+    result = runner.invoke(
+        app,
+        [
+            "eval",
+            "--case-dir",
+            str(missing_dir),
+            "--prompt-dir",
+            "prompts",
+        ],
+    )
+
+    # Then: the command fails loudly instead of reporting a successful zero-case run.
+    assert result.exit_code == 2
+    assert "Eval case directory does not exist" in result.stdout
+    assert "Total cases: 0" not in result.stdout
+
+
 def test_cli_eval_matrix_prints_fake_model_harness_summary() -> None:
     runner = CliRunner()
 
@@ -216,3 +239,26 @@ def test_cli_eval_matrix_prints_fake_model_harness_summary() -> None:
     assert "Failed rows: 0" in result.stdout
     assert "failed check:" not in result.stdout
     assert "Unsupported capabilities: 0" in result.stdout
+
+
+def test_cli_eval_matrix_fails_when_case_directory_is_missing(tmp_path: Path) -> None:
+    # Given: a case directory path that does not exist.
+    missing_dir = tmp_path / "missing-cases"
+    runner = CliRunner()
+
+    # When: eval-matrix is run against the missing directory.
+    result = runner.invoke(
+        app,
+        [
+            "eval-matrix",
+            "--case-dir",
+            str(missing_dir),
+            "--prompt-dir",
+            "prompts",
+        ],
+    )
+
+    # Then: the command fails loudly instead of marking fake-default as passed.
+    assert result.exit_code == 2
+    assert "Eval case directory does not exist" in result.stdout
+    assert "status=passed passed=0 failed=0" not in result.stdout

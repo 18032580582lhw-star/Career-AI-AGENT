@@ -4,21 +4,32 @@ from __future__ import annotations
 
 from pathlib import Path  # noqa: TC003 - Typer and Pydantic resolve runtime paths.
 
+from pydantic import TypeAdapter
+
 from career_ai.rendering.latex.templates import load_system_template
 from career_ai.tailoring.generation_context import build_generation_context
-from career_ai.tailoring.host_run_models import HostPrepareResult, HostRunRequest
+from career_ai.tailoring.host_run_models import (
+    HostPrepareResult,
+    HostProposalInput,
+    HostRunRequest,
+)
 from career_ai.tailoring.host_run_persistence import (
     CONTEXT_FILE,
+    FACTS_FILE,
     REQUEST_FILE,
     artifact_name,
     ensure_run_dir,
     hash_text,
     new_run_id,
     read_text,
+    write_candidate_facts,
 )
 from career_ai.tailoring.manifest_contracts import TemplateType
-from career_ai.tailoring.proposal_contracts import ResumeTailoringProposal
 from career_ai.workspace import create_workspace, write_json_atomic
+
+_HOST_PROPOSAL_INPUT_ADAPTER: TypeAdapter[HostProposalInput] = TypeAdapter(
+    HostProposalInput,
+)
 
 
 def prepare_host_run(
@@ -60,10 +71,11 @@ def prepare_host_run(
     run_dir = ensure_run_dir(workspace, run_id)
     write_json_atomic(run_dir / REQUEST_FILE, request)
     write_json_atomic(run_dir / CONTEXT_FILE, context)
+    write_candidate_facts(run_dir / FACTS_FILE, context.candidate_facts)
     return HostPrepareResult(
         run_id=run_id,
         request_artifact=artifact_name(run_id, REQUEST_FILE),
-        proposal_schema=ResumeTailoringProposal.model_json_schema(),
+        proposal_schema=_HOST_PROPOSAL_INPUT_ADAPTER.json_schema(),
         source_hashes=source_hashes,
         template_type=template_type,
         template_hash=template_hash,

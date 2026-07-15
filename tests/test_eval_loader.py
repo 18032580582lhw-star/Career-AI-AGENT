@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from career_ai.evals.loader import load_eval_case, load_eval_cases
+from career_ai.evals.loader import EvalCaseLoadError, load_eval_case, load_eval_cases
 
 
 def test_load_eval_case_preserves_case_id_and_inputs(tmp_path: Path) -> None:
@@ -88,6 +88,24 @@ def test_load_eval_cases_loads_json_files_in_deterministic_order(tmp_path: Path)
     cases = load_eval_cases(tmp_path)
 
     assert [case.id for case in cases] == ["a-case", "b-case"]
+
+
+def test_load_eval_cases_fails_when_directory_is_missing(tmp_path: Path) -> None:
+    # Given: an eval case directory path that does not exist.
+    missing_dir = tmp_path / "missing-cases"
+
+    # When/Then: loading cases fails loudly instead of reporting an empty suite.
+    with pytest.raises(EvalCaseLoadError, match="Eval case directory does not exist"):
+        _ = load_eval_cases(missing_dir)
+
+
+def test_load_eval_cases_fails_when_directory_has_no_json_cases(tmp_path: Path) -> None:
+    # Given: an existing eval case directory with no JSON case files.
+    _ = (tmp_path / "notes.txt").write_text("not an eval case", encoding="utf-8")
+
+    # When/Then: loading cases fails loudly instead of reporting an empty suite.
+    with pytest.raises(EvalCaseLoadError, match="No eval case JSON files found"):
+        _ = load_eval_cases(tmp_path)
 
 
 def test_repository_sample_eval_case_loads_resume_and_jd_text() -> None:

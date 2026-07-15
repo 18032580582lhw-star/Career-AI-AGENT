@@ -15,6 +15,10 @@ from career_ai.tailoring.contract_base import (
     Sha256,
     VersionedContract,
 )
+from career_ai.tailoring.document_contracts import (
+    ResumeDocumentDraft,  # noqa: TC001
+    StructuredResumeTailoringProposal,  # noqa: TC001
+)
 from career_ai.tailoring.generation_models import ProposalSource  # noqa: TC001
 from career_ai.tailoring.manifest_contracts import (
     OutputArtifact,
@@ -22,6 +26,7 @@ from career_ai.tailoring.manifest_contracts import (
     RunState,
     TemplateType,
 )
+from career_ai.tailoring.proposal_contracts import ResumeTailoringProposal
 
 RENDER_STALE_EXIT_CODE = 15
 
@@ -63,6 +68,16 @@ class HostPrepareResult(FrozenContractModel):
     template_type: TemplateType
     template_hash: Sha256
     next_machine_instruction: NonEmptyText
+
+
+class HostStructuredProposalPackage(FrozenContractModel):
+    """Render-capable host package containing structured document material."""
+
+    draft: ResumeDocumentDraft
+    proposal: StructuredResumeTailoringProposal
+
+
+type HostProposalInput = HostStructuredProposalPackage | ResumeTailoringProposal
 
 
 class HostValidationResult(FrozenContractModel):

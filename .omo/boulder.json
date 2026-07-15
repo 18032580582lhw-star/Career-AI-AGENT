@@ -1,19 +1,16 @@
-{
-  "schema_version": 2,
-  "active_work_id": "high-trust-resume-skill-latex",
-  "works": {
-    "high-trust-resume-skill-latex": {
-      "work_id": "high-trust-resume-skill-latex",
-      "active_plan": ".omo/plans/high-trust-resume-skill-latex.md",
-      "plan_name": "high-trust-resume-skill-latex",
-      "session_ids": [
-        "codex:current-thread-20260711",
-        "codex:current-thread-20260712",
-        "codex:current-thread-20260713",
-        "codex:current-thread-20260714"
-      ],
-      "status": "active",
-      "worktree_path": null
-    }
-  }
+﻿{
+    "schema_version":  2,
+    "active_work_id":  "debug-stabilization",
+    "works":  {
+                  "debug-stabilization":  {
+                                              "work_id":  "debug-stabilization",
+                                              "active_plan":  ".omo/plans/debug-stabilization.md",
+                                              "plan_name":  "debug-stabilization",
+                                              "session_ids":  [
+                                                                  "codex:019f5fb7-2fd0-7b43-8930-fc0a791e22ae"
+                                                              ],
+                                              "status":  "completed",
+                                              "worktree_path":  null
+                                          }
+              }
 }

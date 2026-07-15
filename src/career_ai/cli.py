@@ -10,6 +10,7 @@ from career_ai.evals.failure_corpus import (
     FailureCorpusRecord,
     failure_record_to_eval_case_draft,
 )
+from career_ai.evals.loader import EvalCaseLoadError
 from career_ai.evals.model_harness_matrix import (
     default_model_harness_rows,
     run_model_harness_matrix,
@@ -140,11 +141,15 @@ def run_eval_command(
 ) -> None:
     """Run deterministic career eval cases through the local agent harness."""
     settings = LLMSettings()
-    result = run_eval_suite(
-        case_dir=case_dir,
-        prompt_dir=prompt_dir,
-        llm_client=build_llm_client(settings),
-    )
+    try:
+        result = run_eval_suite(
+            case_dir=case_dir,
+            prompt_dir=prompt_dir,
+            llm_client=build_llm_client(settings),
+        )
+    except EvalCaseLoadError as error:
+        console.print(str(error))
+        raise typer.Exit(code=2) from error
     console.print(f"Total cases: {result.total_cases}")
     console.print(f"Passed cases: {result.passed_cases}")
     console.print(f"Failed cases: {result.failed_cases}")
@@ -167,11 +172,15 @@ def run_eval_matrix_command(
     ] = DEFAULT_PROMPT_DIR,
 ) -> None:
     """Run eval cases across local model-harness configurations."""
-    result = run_model_harness_matrix(
-        case_dir=case_dir,
-        prompt_dir=prompt_dir,
-        rows=default_model_harness_rows(),
-    )
+    try:
+        result = run_model_harness_matrix(
+            case_dir=case_dir,
+            prompt_dir=prompt_dir,
+            rows=default_model_harness_rows(),
+        )
+    except EvalCaseLoadError as error:
+        console.print(str(error))
+        raise typer.Exit(code=2) from error
     console.print(f"Total rows: {result.total_rows}")
     console.print(f"Passed rows: {result.passed_rows}")
     console.print(f"Failed rows: {result.failed_rows}")
