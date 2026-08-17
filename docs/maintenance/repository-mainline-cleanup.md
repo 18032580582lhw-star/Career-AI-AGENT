@@ -15,7 +15,7 @@ feature branch was deleted locally and remotely.
 | Ref | State |
 |---|---|
 | `HEAD` / `main` / `origin/main` (before) | `9e372508e086987f8bf15b5c5a37f5e09bc99240` |
-| `HEAD` / `main` / `origin/main` (after) | the single slim-main cleanup commit on top of `9e37250` |
+| `HEAD` / `main` / `origin/main` (after) | `6ca63914fd45e2c428d1920adecc85b085402ead` |
 | `pre-slim-main-2026-08-17` (annotated tag) | peels to `9e372508e086987f8bf15b5c5a37f5e09bc99240` |
 | `archive/pre-slim-main-2026-08-17` (branch) | tip `168ad77f5b75a636d8e1f7963e84fddae76e0f96` (includes `archive/personal-plans/`) |
 | `codex/harness-first-roadmap` | deleted (was fully merged at `9e37250`) |
@@ -63,9 +63,28 @@ git revert <cleanup-commit-sha>   # find via: git log --oneline -3
 git restore --source archive/pre-slim-main-2026-08-17 -- archive/personal-plans/
 ```
 
-## Verification
+## Verification results (2026-08-17)
 
-Run after any product change (see `pyproject.toml` and the migration plan for the full gate set):
+- `python -m pytest -q` → 368 passed (includes packaging smoke).
+- `python -m ruff check .` → 3 pre-existing errors: RUF100 in `src/career_ai/host_proposal_cli.py`
+  and 2× I001 import order in `tests/test_llm_client.py` and `tests/test_workflow_factual_boundary.py`.
+  These exist in the pre-cleanup baseline `9e37250`, are surfaced by the current ruff 0.15.20, and are
+  unrelated to this cleanup (no `.py` file was modified; see scope fidelity below).
+- `python -m basedpyright` → 0 errors, 0 warnings, 0 notes.
+- `career-ai-agent doctor` → HTML renderer, Skill, and no-API checks PASS; Tectonic/XeLaTeX FAIL (no LaTeX engine installed).
+- `career-ai-agent eval` → 3 passed, 0 failed.
+- `career-ai-agent analyze --output json` → valid `CareerFitRunResult` JSON (workflow/quality/run_record).
+- `git diff --check` → clean.
+- Wheel contents → no `.omo`/worklog/evidence entries; fonts and Skill assets present.
+
+## Scope fidelity
+
+`git diff --name-status 9e37250 HEAD` touches only the allowlisted paths: `.omo/evidence/**`, the two
+completed `.omo/plans/`, the historical ledger, eight old worklogs, the two READMEs, the active
+migration plan, and the two new `docs/maintenance/` files. No `.py`, `.toml`, `src/`, `tests/`,
+font, `.career_ai/`, or `.venv/` path was modified — source and tests are byte-identical to `9e37250`.
+
+## Re-run gates
 
 ```powershell
 python -m pytest
