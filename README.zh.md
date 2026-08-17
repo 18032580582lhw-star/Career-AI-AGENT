@@ -188,6 +188,7 @@ ingestion、validation、confirmation 与 rendering 的最终权威。CLI 是 Ha
 - `docs/integrations/deepseek-harness.md`：DeepSeek harness adapter seam
 - `docs/verification/host-skill-smoke.md`：真实宿主 smoke runbook
 - `docs/maintenance/repository-mainline-cleanup.md`：仓库维护收据与历史归档索引
+- `llms.txt`：面向 LLM/Agent 的文档索引
 
 历史任务证据与已完成计划已归档至不可变 tag `pre-slim-main-2026-08-17` 与分支
 `archive/pre-slim-main-2026-08-17`，详见维护文档。

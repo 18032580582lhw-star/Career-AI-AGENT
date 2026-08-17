@@ -189,6 +189,7 @@ Harness adapter; there is no embedded agent or provider.
 - `docs/integrations/deepseek-harness.md`: DeepSeek harness adapter seam
 - `docs/verification/host-skill-smoke.md`: live host smoke runbook
 - `docs/maintenance/repository-mainline-cleanup.md`: repository maintenance receipt and archive index
+- `llms.txt`: LLM/agent-readable documentation index
 
 Historical task evidence and completed plans are archived in immutable tag
 `pre-slim-main-2026-08-17` and branch `archive/pre-slim-main-2026-08-17`; see the maintenance doc.

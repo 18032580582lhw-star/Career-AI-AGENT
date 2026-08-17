@@ -8,5 +8,6 @@ deterministic validation and rendering Harness CLI.
 - [Agent install guide](docs/agent-install.md)
 - [Architecture](docs/architecture/skill-first-harness-core.md)
 - [DeepSeek harness adapter](docs/integrations/deepseek-harness.md)
+- [LLM/agent docs index](llms.txt)
 
 Last updated: 2026-08-17.
