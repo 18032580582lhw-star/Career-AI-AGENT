@@ -31,15 +31,7 @@ class ProposalSource(StrEnum):
     """Origin of a proposal before local validation."""
 
     LOCAL = "local"
-    API = "api"
     HOST = "host"
-
-
-@unique
-class ProviderProposalIssue(StrEnum):
-    """Safe result for a provider response that contains no valid proposal."""
-
-    INVALID_ENVELOPE = "invalid_provider_proposal_envelope"
 
 
 class TailoringGenerationContext(FrozenContractModel):
@@ -119,12 +111,6 @@ def _template_source(template_hash: Sha256 | None) -> tuple[SourceBinding, ...]:
     )
 
 
-class ProviderProposalEnvelope(FrozenContractModel):
-    """Strict API-provider response envelope for one untrusted proposal."""
-
-    proposal: ResumeTailoringProposal
-
-
 class ProposalOutcome(FrozenContractModel):
     """Locally graded result for one generated proposal."""
 
@@ -140,4 +126,3 @@ class TailoringGenerationResult(FrozenContractModel):
 
     outcomes: tuple[ProposalOutcome, ...]
     best_strategy: ProposalStrategy | None = None
-    provider_issue: ProviderProposalIssue | None = None

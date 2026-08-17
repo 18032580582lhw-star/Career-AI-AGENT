@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from typing import Literal, override
+from typing import Literal
 
-from career_ai.llm.client import FakeLLMClient
-from career_ai.llm.models import LLMRequest, LLMResponse, ModelProvider
 from career_ai.tailoring.generation_models import (
     ProposalSource,
     TailoringGenerationContext,
 )
 from career_ai.tailoring.generation_strategies import generate_local_proposals
 from career_ai.tailoring.generation_workflow import (
-    run_api_proposal_workflow,
     run_host_proposal_workflow,
     run_local_strategy_workflow,
 )
@@ -34,25 +31,6 @@ from career_ai.tailoring.proposal_contracts import (
 )
 
 
-class ProposalRecordingClient(FakeLLMClient):
-    """Return one provider proposal while preserving the real client boundary."""
-
-    requested: bool
-    _response: LLMResponse
-    last_request: LLMRequest | None
-
-    def __init__(self, response: LLMResponse) -> None:
-        self.requested = False
-        self._response = response
-        self.last_request = None
-
-    @override
-    def complete_structured(self, request: LLMRequest) -> LLMResponse:
-        self.last_request = request
-        self.requested = True
-        return self._response
-
-
 def test_local_strategies_generate_real_proposals_and_grade_harness_outcomes() -> None:
     context = _context()
 
@@ -68,29 +46,6 @@ def test_local_strategies_generate_real_proposals_and_grade_harness_outcomes() -
     assert result.outcomes[1].decision.decision.outcome.value == "accepted"
     assert result.outcomes[2].decision.decision.outcome.value == "rejected"
     assert result.best_strategy is ProposalStrategy.ATS_ALIGNED
-
-
-def test_host_and_api_proposals_share_the_same_typed_validation_workflow() -> None:
-    context = _context()
-    provider_proposal = generate_local_proposals(context)[1]
-    client = ProposalRecordingClient(
-        LLMResponse(
-            provider=ModelProvider.FAKE,
-            content={"proposal": provider_proposal.model_dump(mode="json")},
-        )
-    )
-
-    host_result = run_host_proposal_workflow(context, (provider_proposal,))
-    api_result = run_api_proposal_workflow(context, client)
-
-    assert client.requested is True
-    assert host_result.outcomes[0].source is ProposalSource.HOST
-    assert api_result.outcomes[0].source is ProposalSource.API
-    assert host_result.outcomes[0].decision == api_result.outcomes[0].decision
-    assert host_result.outcomes[0].proposal == api_result.outcomes[0].proposal
-    assert client.last_request is not None
-    assert "task_package=" in client.last_request.user_prompt
-    assert "baseline_resume_text:" in client.last_request.user_prompt
 
 
 def test_strategies_with_no_evidence_matches_keep_valid_strategy_specific_hashes() -> None:
@@ -115,13 +70,6 @@ def test_evidence_strategies_preserve_the_complete_baseline_resume() -> None:
         context.baseline_resume_text in item.proposal.rewritten_resume
         for item in result.outcomes[1:]
     )
-
-
-def test_fake_provider_returns_a_safe_non_accepted_generation_result() -> None:
-    result = run_api_proposal_workflow(_context(), FakeLLMClient())
-
-    assert result.outcomes == ()
-    assert result.provider_issue is not None
 
 
 def test_host_proposal_with_a_forged_requirement_is_rejected() -> None:

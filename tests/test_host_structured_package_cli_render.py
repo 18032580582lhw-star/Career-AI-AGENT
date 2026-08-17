@@ -167,12 +167,12 @@ def _validate_structured_package(
     return runner.invoke(
         app,
         [
-            "tailor",
+            "validate-draft",
             "--workspace",
             str(workspace),
             "--run-id",
             run_id,
-            "--host-proposal",
+            "--proposal-file",
             str(package_path),
             "--output",
             "json",

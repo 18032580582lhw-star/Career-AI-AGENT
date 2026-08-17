@@ -32,20 +32,20 @@ if TYPE_CHECKING:
 
 
 def _service(workspace: Path) -> TailoringApplicationService:
-    """Load provider-aware tailoring only when its command is invoked."""
+    """Load the tailoring service only when a command is invoked."""
     from career_ai.application import TailoringApplicationService  # noqa: PLC0415
 
     return TailoringApplicationService(workspace=workspace)
 
 
-def register_host_proposal_commands(  # noqa: C901
+def register_host_proposal_commands(
     app: typer.Typer,
     console: Console,
 ) -> None:
     """Attach host-proposal commands to the root CLI."""
 
     @app.command("prepare")
-    def prepare_command(  # noqa: PLR0913, PLR0917 - Typer exposes CLI options.
+    def prepare_command(  # noqa: PLR0913 - Typer exposes CLI options.
         workspace: Annotated[
             Path,
             typer.Option(help="Career AI workspace root."),
@@ -131,38 +131,6 @@ def register_host_proposal_commands(  # noqa: C901
             raise typer.Exit(code=error.exit_code) from error
         print_validation_result(console, result, output)
 
-    @app.command("tailor")
-    def tailor_command(
-        workspace: Annotated[
-            Path,
-            typer.Option(help="Career AI workspace root."),
-        ] = DEFAULT_WORKSPACE,
-        run_id: Annotated[str, typer.Option(help="Prepared run id.")] = "",
-        host_proposal: Annotated[
-            Path | None,
-            typer.Option(help="Host-authored strict JSON proposal file."),
-        ] = None,
-        output: Annotated[
-            CliOutputMode,
-            typer.Option("--output", help="Choose result summary, process details, or JSON."),
-        ] = CliOutputMode.RESULT,
-    ) -> None:
-        """Generate or validate proposals for a prepared tailoring run."""
-        try:
-            if host_proposal is not None:
-                result = _service(workspace).validate(
-                    run_id=run_id,
-                    proposal_file=host_proposal,
-                )
-            else:
-                result = _service(workspace).tailor_with_api(
-                    run_id=run_id,
-                )
-        except HostRunError as error:
-            console.print(str(error))
-            raise typer.Exit(code=error.exit_code) from error
-        print_validation_result(console, result, output)
-
     @app.command("render")
     def render_command(
         workspace: Annotated[
@@ -218,7 +186,6 @@ def register_host_proposal_commands(  # noqa: C901
         prepare_command,
         validate_draft_command,
         confirm_command,
-        tailor_command,
         render_command,
         inspect_latex_command,
     )

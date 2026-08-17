@@ -18,7 +18,6 @@ from career_ai.tailoring.host_run_render import render_host_run
 from career_ai.tailoring.host_run_validation import (
     confirm_host_fact,
     save_accepted_run,
-    tailor_with_api,
     validate_host_draft,
 )
 
@@ -38,6 +37,5 @@ __all__ = [
     "prepare_host_run",
     "render_host_run",
     "save_accepted_run",
-    "tailor_with_api",
     "validate_host_draft",
 ]

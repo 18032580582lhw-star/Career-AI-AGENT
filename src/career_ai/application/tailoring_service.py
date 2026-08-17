@@ -6,8 +6,6 @@ from typing import TYPE_CHECKING
 
 from pydantic import TypeAdapter
 
-from career_ai.llm.client import build_llm_client
-from career_ai.llm.settings import LLMSettings
 from career_ai.rendering.latex import inspect_user_latex_template
 from career_ai.tailoring.host_run_persistence import (
     RUN_MANIFEST_FILE,
@@ -20,7 +18,6 @@ from career_ai.tailoring.host_run_store import (
     confirm_host_fact,
     prepare_host_run,
     render_host_run,
-    tailor_with_api,
     validate_host_draft,
 )
 from career_ai.tailoring.manifest_contracts import RenderManifest, RunManifest
@@ -29,7 +26,6 @@ from career_ai.workspace import create_workspace, resolve_workspace_path
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from career_ai.llm.client import LLMClient
     from career_ai.rendering.latex import LatexTemplateProfile
     from career_ai.tailoring.host_run_models import (
         HostPrepareResult,
@@ -53,10 +49,9 @@ class WorkspaceRunSummary(RunManifest):
 class TailoringApplicationService:
     """Coordinate one workspace through the canonical tailoring workflow."""
 
-    def __init__(self, *, workspace: Path, llm_client: LLMClient | None = None) -> None:
+    def __init__(self, *, workspace: Path) -> None:
         """Create a service bound to one workspace root."""
         self._workspace: Path = workspace
-        self._llm_client: LLMClient | None = llm_client
 
     @property
     def workspace(self) -> Path:
@@ -98,14 +93,6 @@ class TailoringApplicationService:
             workspace=self._workspace,
             run_id=run_id,
             confirmation_file=confirmation_file,
-        )
-
-    def tailor_with_api(self, *, run_id: str) -> HostValidationResult:
-        """Request provider proposals, then validate locally."""
-        return tailor_with_api(
-            workspace=self._workspace,
-            run_id=run_id,
-            client=self._resolved_llm_client(),
         )
 
     def render(
@@ -169,8 +156,3 @@ class TailoringApplicationService:
             except (OSError, ValueError):
                 continue
         return tuple(manifests)
-
-    def _resolved_llm_client(self) -> LLMClient:
-        if self._llm_client is not None:
-            return self._llm_client
-        return build_llm_client(LLMSettings())

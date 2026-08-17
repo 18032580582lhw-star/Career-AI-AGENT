@@ -217,6 +217,38 @@ def test_cli_eval_fails_when_case_directory_is_missing(tmp_path: Path) -> None:
     assert "Total cases: 0" not in result.stdout
 
 
+def test_cli_analyze_and_eval_do_not_build_provider_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Given: the provider builder is poisoned so any call fails.
+    def forbidden_provider_call() -> None:
+        message = "provider client must not be built during analyze or eval"
+        raise AssertionError(message)
+
+    monkeypatch.setattr("career_ai.llm.client.build_llm_client", forbidden_provider_call)
+    runner = CliRunner()
+
+    # When: deterministic analyze and eval run.
+    analyze = runner.invoke(
+        app,
+        [
+            "analyze",
+            "--resume-text",
+            "Product analyst using Python SQL.",
+            "--jd-text",
+            "Role: Data Analyst. Requires Python and SQL.",
+        ],
+    )
+    eval_result = runner.invoke(
+        app,
+        ["eval", "--case-dir", "evals/career_cases", "--prompt-dir", "prompts"],
+    )
+
+    # Then: neither path constructs a provider client.
+    assert analyze.exit_code == 0
+    assert eval_result.exit_code == 0
+
+
 def test_cli_eval_matrix_prints_fake_model_harness_summary() -> None:
     runner = CliRunner()
 

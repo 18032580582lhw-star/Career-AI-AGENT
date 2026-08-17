@@ -108,7 +108,7 @@ def test_validate_draft_rejects_markdown_code_fence_json(tmp_path: Path) -> None
     assert "strict JSON" in result.stdout
 
 
-def test_tailor_host_mode_does_not_call_provider_api(
+def test_validate_draft_does_not_call_provider_api(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -120,25 +120,25 @@ def test_tailor_host_mode_does_not_call_provider_api(
     _ = proposal_file.write_text(proposal.model_dump_json(), encoding="utf-8")
 
     def forbidden_provider_call() -> None:
-        message = "provider should not be built for host proposal mode"
+        message = "provider should not be built for host proposal validation"
         raise AssertionError(message)
 
     monkeypatch.setattr(
-        "career_ai.application.tailoring_service.build_llm_client",
+        "career_ai.llm.client.build_llm_client",
         forbidden_provider_call,
     )
     runner = CliRunner()
 
-    # When: host mode tailoring runs.
+    # When: the host proposal is validated through the local harness.
     result = runner.invoke(
         app,
         [
-            "tailor",
+            "validate-draft",
             "--workspace",
             str(tmp_path),
             "--run-id",
             run_id,
-            "--host-proposal",
+            "--proposal-file",
             str(proposal_file),
             "--output",
             "json",

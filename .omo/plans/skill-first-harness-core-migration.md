@@ -515,7 +515,7 @@ Fresh temporary workspace setup plus live `codex exec` and `claude -p --output-f
 
 ---
 
-- [ ] Task 6 — Remove direct provider generation from the high-trust lifecycle
+- [x] Task 6 — Remove direct provider generation from the high-trust lifecycle
 
 ### Task 6 — Remove direct provider generation from the high-trust lifecycle
 

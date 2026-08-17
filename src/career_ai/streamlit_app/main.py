@@ -137,26 +137,12 @@ def _render_generation_controls(service: TailoringApplicationService) -> None:
     run_id = _selected_run_id()
     _ = st.subheader("Proposal")
     proposal_file = st.file_uploader("Host proposal JSON", type=["json"])
-    generate_column, validate_column = st.columns(2)
-    with generate_column:
-        if st.button("Generate with API", disabled=run_id is None):
-            _run_api_generation(service, run_id)
-    with validate_column:
-        if st.button("Validate host proposal", disabled=run_id is None or proposal_file is None):
-            if proposal_file is None:
-                return
-            proposal_path = persist_upload(service.workspace, proposal_file, "proposal.json")
-            _run_host_validation(service, run_id, proposal_path)
+    if st.button("Validate host proposal", disabled=run_id is None or proposal_file is None):
+        if proposal_file is None:
+            return
+        proposal_path = persist_upload(service.workspace, proposal_file, "proposal.json")
+        _run_host_validation(service, run_id, proposal_path)
     _render_trust_panel()
-
-
-def _run_api_generation(service: TailoringApplicationService, run_id: str | None) -> None:
-    if run_id is None:
-        return
-    result = service.tailor_with_api(run_id=run_id)
-    st.session_state["last_validation_state"] = result.state.value
-    _ = st.success(f"Three strategies compared; state: {result.state.value}")
-    _render_process_json(result)
 
 
 def _run_host_validation(

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path  # noqa: TC003 - CLI-facing runtime type.
-from typing import TYPE_CHECKING
 
 from pydantic import TypeAdapter, ValidationError
 
@@ -17,10 +16,7 @@ from career_ai.tailoring.document_contracts import (
     StructuredResumeTailoringProposal,  # noqa: TC001
 )
 from career_ai.tailoring.generation_models import ProposalOutcome, ProposalSource
-from career_ai.tailoring.generation_workflow import (
-    run_api_proposal_workflow,
-    run_host_proposal_workflow,
-)
+from career_ai.tailoring.generation_workflow import run_host_proposal_workflow
 from career_ai.tailoring.host_run_models import (
     HostProposalInput,
     HostRunError,
@@ -50,9 +46,6 @@ from career_ai.tailoring.proposal_contracts import (
 )
 from career_ai.tailoring.state_machine import ValidationStateResult  # noqa: TC001
 from career_ai.workspace import create_workspace, write_json_atomic
-
-if TYPE_CHECKING:
-    from career_ai.llm.client import LLMClient
 
 _HOST_PROPOSAL_INPUT_ADAPTER: TypeAdapter[HostProposalInput] = TypeAdapter(
     HostProposalInput,
@@ -106,27 +99,6 @@ def validate_host_draft(
             outcome = result.outcomes[0]
             _save_best_validation(workspace, run_id, outcome.proposal, outcome.decision)
     return _validation_result(run_id, outcome)
-
-
-def tailor_with_api(
-    *,
-    workspace: Path,
-    run_id: str,
-    client: LLMClient,
-) -> HostValidationResult:
-    """Ask the configured provider for proposals, then run the local harnesses."""
-    context = load_run_context(workspace, run_id)
-    result = run_api_proposal_workflow(context, client)
-    if not result.outcomes:
-        return HostValidationResult(
-            run_id=run_id,
-            source=ProposalSource.API,
-            state=RunState.REJECTED,
-            next_machine_instruction=_next_machine_instruction(RunState.REJECTED),
-        )
-    best = max(result.outcomes, key=lambda item: item.score)
-    _save_best_validation(workspace, run_id, best.proposal, best.decision)
-    return _validation_result(run_id, best, source=ProposalSource.API)
 
 
 def confirm_host_fact(
