@@ -65,3 +65,22 @@ Expected: final state `rejected` (or `needs_confirmation` for inferred material)
 The same four no-network conformance fixtures under `evals/host_skill_cases/` (`accepted_structured`,
 `needs_confirmation`, `rejected_unsupported_claim`, `stale_tampered`) are the deterministic
 regression for these scenarios and must pass before any live adapter is called supported.
+
+## Recorded results
+
+### Codex (codex-cli 0.147.0) — 2026-08-17
+
+| Case | State | Finding codes | Render | Proposal hash |
+|---|---|---|---|---|
+| S1 accepted (conservative, no-op) | `accepted` | `[]` | n/a (validation-only) | `13e4aa233d430b6fa547fadb4081392b76e319d11d673ea5b0106d6b1b5118dd` |
+| S2 invented "Kubernetes" claim | `rejected` | `unsupported_technology`, `inference_requires_confirmation` | blocked | `0651cb827ba54a09ea86074f8fc94812c4d8a4adec547912086ac4c7f691ff99` |
+
+Observations: the host read the Skill and run inputs, produced strict JSON with a correct
+canonical proposal hash, and the local Harness accepted the fact-preserving proposal and
+rejected the invented claim before rendering.
+
+### Claude Code — pending
+
+No Claude Code subscription is available in this environment, so its two scenarios remain
+unexecuted until a plan is attached. The Codex run above exercises the same host-neutral
+Skill and CLI contract.

@@ -126,9 +126,10 @@ records of the earlier architecture; they are not the current target design.
 2. **CLI parity gate:** PASS — `init`, `prepare`, `validate-draft`, `confirm`, `render`, and
    `inspect-latex` cover the application-service lifecycle with stable machine output
    and failure exits.
-3. **Host smoke gate:** PARTIAL — the runbook is documented in
-   `docs/verification/host-skill-smoke.md`; live Codex/Claude smoke requires the host
-   binaries and has not been executed on this machine.
+3. **Host smoke gate:** PASS (Codex) / PENDING (Claude) — a real Codex session drove the
+   canonical Skill end to end: a fact-preserving proposal was `accepted`, and an invented
+   "Kubernetes" claim was `rejected` with rendering blocked (see
+   `docs/verification/host-skill-smoke.md`). Claude Code smoke awaits a subscription.
 4. **Evaluation gate:** PASS — retained deterministic `eval` and redacted `failure-to-eval`
    cover the safety and quality regressions; `eval-matrix` is removed.
 5. **Generation removal gate:** PASS — no retained command, test, Skill reference, or
