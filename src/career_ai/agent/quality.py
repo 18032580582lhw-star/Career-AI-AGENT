@@ -2,11 +2,11 @@ from typing import Final
 
 from pydantic import Field
 
-from career_ai.llm.boundary_harness import BoundaryViolationCode, check_career_fit_report
 from career_ai.llm.client import LLMClient
 from career_ai.llm.models import LLMRequest, ModelProvider
 from career_ai.models import FrozenModel
 from career_ai.text_processing import extract_keywords
+from career_ai.workflows.factual_boundary import BoundaryViolationCode, check_career_fit_report
 from career_ai.workflows.models import CareerFitWorkflowResult
 
 FACTUAL_CONSISTENCY: Final[str] = "factual_consistency"

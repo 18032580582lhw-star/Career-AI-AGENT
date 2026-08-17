@@ -41,7 +41,7 @@ class BoundaryViolationCode(StrEnum):
 
 
 class BoundaryViolation(FrozenModel):
-    """One reason an LLM output cannot enter the agent as trusted data."""
+    """One reason an external output cannot enter the workflow as trusted data."""
 
     code: BoundaryViolationCode
     field_path: str
@@ -182,9 +182,7 @@ def _keyword_violations(
     violations: list[BoundaryViolation] = []
     for index, suggestion in enumerate(report.bullet_suggestions):
         invalid_keywords = [
-            keyword
-            for keyword in suggestion.jd_keywords_used
-            if keyword.lower() not in jd_keywords
+            keyword for keyword in suggestion.jd_keywords_used if keyword.lower() not in jd_keywords
         ]
         if invalid_keywords:
             violations.append(

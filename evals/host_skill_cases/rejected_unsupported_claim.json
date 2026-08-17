@@ -1,0 +1,7 @@
+{
+  "case_id": "rejected_unsupported_claim",
+  "proposal_variant": "unsupported",
+  "expected_state": "rejected",
+  "expected_finding_codes": ["unsupported_claim"],
+  "render_expected": false
+}

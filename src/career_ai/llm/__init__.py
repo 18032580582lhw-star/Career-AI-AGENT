@@ -1,13 +1,5 @@
 """Model-neutral LLM client abstractions."""
 
-from career_ai.llm.boundary_harness import (
-    BoundaryCheckResult,
-    BoundaryGuardResult,
-    BoundaryViolation,
-    BoundaryViolationCode,
-    check_career_fit_report,
-    guard_career_fit_report,
-)
 from career_ai.llm.capabilities import (
     CapabilityError,
     CapabilityName,
@@ -23,10 +15,6 @@ from career_ai.llm.models import LLMCapabilities, LLMRequest, LLMResponse, Model
 from career_ai.llm.settings import LLMSettings
 
 __all__ = [
-    "BoundaryCheckResult",
-    "BoundaryGuardResult",
-    "BoundaryViolation",
-    "BoundaryViolationCode",
     "CapabilityError",
     "CapabilityName",
     "FakeLLMClient",
@@ -42,7 +30,5 @@ __all__ = [
     "ToolCallCapability",
     "TraceCapability",
     "build_provider_capability_profile",
-    "check_career_fit_report",
-    "guard_career_fit_report",
     "unsupported_capability_error",
 ]

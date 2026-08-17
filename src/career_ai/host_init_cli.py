@@ -25,7 +25,7 @@ def register_init_command(app: typer.Typer, console: Console) -> None:
         ] = DEFAULT_WORKSPACE,
         agent: Annotated[
             HostAgent | None,
-            typer.Option(help="Host adapter to install."),
+            typer.Option(help="Host Skill to install: codex, claude, or all."),
         ] = None,
     ) -> None:
         """Initialize a local workspace and, optionally, host Skill adapters."""

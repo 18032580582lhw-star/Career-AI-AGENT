@@ -1,8 +1,34 @@
 """Shared application services for CLI, Skills, and Streamlit."""
 
-from career_ai.application.tailoring_service import (
-    TailoringApplicationService,
-    WorkspaceRunSummary,
+from typing import TYPE_CHECKING
+
+from career_ai.application.career_fit_service import (
+    CareerFitApplicationService,
+    CareerFitRunResult,
 )
 
-__all__ = ["TailoringApplicationService", "WorkspaceRunSummary"]
+if TYPE_CHECKING:
+    from career_ai.application.tailoring_service import (
+        TailoringApplicationService,
+        WorkspaceRunSummary,
+    )
+
+__all__ = [
+    "CareerFitApplicationService",
+    "CareerFitRunResult",
+    "TailoringApplicationService",
+    "WorkspaceRunSummary",
+]
+
+
+def __getattr__(name: str) -> object:
+    """Load provider-aware services only when explicitly requested."""
+    if name == "TailoringApplicationService":
+        from career_ai.application import tailoring_service  # noqa: PLC0415
+
+        return tailoring_service.TailoringApplicationService
+    if name == "WorkspaceRunSummary":
+        from career_ai.application import tailoring_service  # noqa: PLC0415
+
+        return tailoring_service.WorkspaceRunSummary
+    raise AttributeError(name)

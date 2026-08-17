@@ -103,7 +103,7 @@ def _render_one(  # noqa: PLR0913 - render dispatch carries one run context.
     render_format: HostRenderFormat,
     disable_latex_engines: bool,
 ) -> HostRenderItem:
-    match render_format:
+    match render_format:  # noqa: MATCH_OK - exhaustive enum; dead default is a type error.
         case HostRenderFormat.DOCX:
             outcome = DocxResumeRenderer().render(accepted, output_dir)
             return _renderer_item(
@@ -174,7 +174,7 @@ def _renderer_item(  # noqa: PLR0913 - converts one backend outcome with provena
     outcome: RendererSuccess | RenderFailure,
     engine: RenderEngine,
 ) -> HostRenderItem:
-    match outcome:
+    match outcome:  # noqa: MATCH_OK - exhaustive union; dead default is a type error.
         case RendererSuccess():
             manifest = write_render_manifest(
                 workspace,
@@ -220,7 +220,7 @@ def _render_latex_pdf(  # noqa: PLR0913
         else None
     )
     result = compile_latex_pdf(output_dir / tex_artifact.path, config=config)
-    match result:
+    match result:  # noqa: MATCH_OK - exhaustive union; dead default is a type error.
         case LatexCompilationSuccess():
             artifact = output_artifact(result.pdf_path, result.pdf_path.name, "application/pdf")
             engine = (

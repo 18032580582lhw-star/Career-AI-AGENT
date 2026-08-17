@@ -1,6 +1,9 @@
 import httpx
 
-from career_ai.llm import BoundaryViolationCode, check_career_fit_report
+from career_ai.workflows.factual_boundary import (
+    BoundaryViolationCode,
+    check_career_fit_report,
+)
 from career_ai.llm.client import FakeLLMClient, OpenAICompatibleClient, build_llm_client
 from career_ai.llm.models import LLMCapabilities, LLMRequest, ModelProvider
 from career_ai.llm.settings import LLMSettings

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from importlib import resources
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import TypeAdapter
 from typer.testing import CliRunner
@@ -12,118 +14,179 @@ from career_ai.skills.installation import (
     canonical_skill_root,
 )
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 RESULT_ADAPTER = TypeAdapter(SkillInstallationResult)
+REFERENCE_FILES = (
+    "references/fact-policy.md",
+    "references/proposal-contract.md",
+    "references/rendering.md",
+    "references/workflow.md",
+)
 
 
-def test_canonical_skill_documents_required_workflow_and_latex_policy() -> None:
-    # Given: the packaged canonical host skill.
+def _frontmatter_fields(skill_text: str) -> dict[str, str]:
+    lines = skill_text.splitlines()
+    assert lines[0] == "---"
+    closing_index = lines.index("---", 1)
+    fields: dict[str, str] = {}
+    for line in lines[1:closing_index]:
+        key, delimiter, value = line.partition(":")
+        assert delimiter
+        assert key
+        assert value.strip()
+        fields[key] = value.strip().strip('"')
+    return fields
+
+
+def test_canonical_skill_uses_valid_minimal_frontmatter_and_metadata() -> None:
+    # Given: the packaged canonical Agent Skill.
     skill_root = canonical_skill_root()
     skill_text = (skill_root / "SKILL.md").read_text(encoding="utf-8")
-    rendering_text = (skill_root / "references" / "rendering.md").read_text(encoding="utf-8")
+    metadata_text = (skill_root / "agents" / "openai.yaml").read_text(encoding="utf-8")
 
-    # When: the skill policy is inspected.
-    required_terms = (
-        "prepare",
-        "host proposal",
-        "validate",
-        "confirm/repair",
-        "render",
-        "DOCX",
-        "PDF",
-        "Overleaf .tex",
-        "resume.tex",
-        "LaTeX PDF",
-    )
+    # When: host discovery metadata is inspected.
+    fields = _frontmatter_fields(skill_text)
 
-    # Then: orchestration and LaTeX safety are explicit and host-neutral.
-    assert (skill_root / "agents" / "openai.yaml").is_file()
-    for term in required_terms:
-        assert term in skill_text
-    assert "Do not patch user source files" in rendering_text
-    assert "Do not compile arbitrary .tex files" in rendering_text
-    assert "Do not put raw LaTeX commands in proposals" in rendering_text
+    # Then: only portable Skill fields and the accepted Codex interface schema are used.
+    assert fields.keys() == {"name", "description"}
+    assert fields["name"] == "career-resume-tailor"
+    assert "resume" in fields["description"].lower()
+    assert "when" in fields["description"].lower()
+    assert metadata_text.startswith("interface:\n")
+    assert "  display_name:" in metadata_text
+    assert "  short_description:" in metadata_text
+    assert "  default_prompt:" in metadata_text
+    assert "protocol:" not in metadata_text
+    assert "commands:" not in metadata_text
 
 
-def test_init_agent_all_installs_three_hosts_and_records_skill_hash(tmp_path: Path) -> None:
+def test_host_agent_contract_contains_only_supported_values() -> None:
+    # Given: the public host selector enum.
+    # When: its serialized values are enumerated.
+    values = {host.value for host in HostAgent}
+
+    # Then: only the two current hosts and their combined selector remain.
+    assert values == {"codex", "claude", "all"}
+
+
+def test_init_agent_all_installs_exactly_two_hosts_idempotently(tmp_path: Path) -> None:
     # Given: a fresh workspace.
     runner = CliRunner()
 
-    # When: all host adapters are initialized twice.
+    # When: both supported host Skills are initialized twice.
     first = runner.invoke(app, ["init", "--workspace", str(tmp_path), "--agent", "all"])
     second = runner.invoke(app, ["init", "--workspace", str(tmp_path), "--agent", "all"])
 
-    # Then: initialization is idempotent and records package/protocol/template/hash metadata.
+    # Then: exactly Codex and Claude use their official project discovery paths.
     assert first.exit_code == 0
     assert second.exit_code == 0
+    first_payload = RESULT_ADAPTER.validate_json(first.stdout)
     payload = RESULT_ADAPTER.validate_json(second.stdout)
+    assert len(payload.installations) == 2
     assert {item.agent for item in payload.installations} == {
         HostAgent.CLAUDE,
         HostAgent.CODEX,
-        HostAgent.OPENCODE,
     }
+    assert {item.status for item in first_payload.installations} == {"installed"}
+    assert {item.status for item in payload.installations} == {"present"}
     assert payload.skill_hash == canonical_skill_digest()
-    assert payload.package_resources.skill
-    assert payload.package_resources.prompts
-    assert payload.package_resources.schemas
-    assert payload.package_resources.html_css
-    assert payload.package_resources.latex_templates
-    assert payload.package_resources.fonts
-    assert payload.package_resources.licenses
-    assert (tmp_path / ".agents" / "skills" / "career-resume-tailor" / "SKILL.md").is_file()
-    assert (tmp_path / ".claude" / "plugins" / "career-resume-tailor" / "SKILL.md").is_file()
-    assert (tmp_path / ".career_ai" / "skill-installations.json").is_file()
+    codex_skill = tmp_path / ".agents" / "skills" / "career-resume-tailor"
+    claude_skill = tmp_path / ".claude" / "skills" / "career-resume-tailor"
+    assert (codex_skill / "SKILL.md").is_file()
+    assert (claude_skill / "SKILL.md").is_file()
+    assert not (tmp_path / ".claude" / "plugins").exists()
+
+
+def test_host_copies_are_byte_identical_and_metadata_is_accurate(tmp_path: Path) -> None:
+    # Given: a fresh workspace initialized for all supported hosts.
+    result = CliRunner().invoke(
+        app,
+        ["init", "--workspace", str(tmp_path), "--agent", "all"],
+    )
+
+    # When: installed policy bytes and the machine-readable result are inspected.
+    payload = RESULT_ADAPTER.validate_json(result.stdout)
+    codex_skill = tmp_path / ".agents" / "skills" / "career-resume-tailor"
+    claude_skill = tmp_path / ".claude" / "skills" / "career-resume-tailor"
+
+    # Then: hosts share one policy bundle and report format, host, and exact target.
+    assert result.exit_code == 0
+    for relative in ("SKILL.md", *REFERENCE_FILES):
+        assert (codex_skill / relative).read_bytes() == (claude_skill / relative).read_bytes()
+    expected_targets = {
+        HostAgent.CODEX: str(codex_skill.resolve(strict=False)),
+        HostAgent.CLAUDE: str(claude_skill.resolve(strict=False)),
+    }
+    for installation in payload.installations:
+        assert installation.format == "agent-skill"
+        assert installation.target == expected_targets[installation.agent]
+        assert not hasattr(installation, "protocol")
+        assert not hasattr(installation, "template")
+
+
+def test_init_preserves_differing_user_files_for_each_host(tmp_path: Path) -> None:
+    # Given: differing user-owned Skill files at both supported discovery paths.
+    targets = {
+        HostAgent.CODEX: tmp_path / ".agents" / "skills" / "career-resume-tailor" / "SKILL.md",
+        HostAgent.CLAUDE: tmp_path / ".claude" / "skills" / "career-resume-tailor" / "SKILL.md",
+    }
+    original = b"user-owned skill\n"
+    for target in targets.values():
+        target.parent.mkdir(parents=True)
+        _ = target.write_bytes(original)
+
+    # When: each host initializer encounters the conflict.
+    results = {
+        host: CliRunner().invoke(
+            app,
+            ["init", "--workspace", str(tmp_path), "--agent", host.value],
+        )
+        for host in targets
+    }
+
+    # Then: neither user file changes and each conflict is reported.
+    for host, result in results.items():
+        assert result.exit_code == 0
+        payload = RESULT_ADAPTER.validate_json(result.stdout)
+        assert targets[host].read_bytes() == original
+        assert payload.installations[0].status == "exists-different"
+
+
+def test_install_record_matches_machine_readable_result(tmp_path: Path) -> None:
+    # Given: a successful all-host initialization.
+    result = CliRunner().invoke(
+        app,
+        ["init", "--workspace", str(tmp_path), "--agent", "all"],
+    )
+
+    # When: stdout and the atomically written installation record are decoded.
+    stdout_payload = RESULT_ADAPTER.validate_json(result.stdout)
+    record_payload = RESULT_ADAPTER.validate_json(
+        (tmp_path / ".career_ai" / "skill-installations.json").read_text(encoding="utf-8")
+    )
+
+    # Then: persistent metadata is exactly the reported schema.
+    assert result.exit_code == 0
+    assert record_payload == stdout_payload
 
 
 def test_packaged_resources_are_importable_for_clean_install_smoke() -> None:
-    # Given: package data expected by Skills and renderers.
+    # Given: package data expected by host Skills and renderers.
     skill_files = resources.files("career_ai.skills")
     rendering_files = resources.files("career_ai.rendering")
 
     # When: resources are resolved through importlib instead of source-relative paths.
     skill_entrypoint = skill_files.joinpath("career_resume_tailor", "SKILL.md")
+    openai_metadata = skill_files.joinpath("career_resume_tailor", "agents", "openai.yaml")
     system_template = rendering_files.joinpath("latex", "assets", "system_resume.tex")
     noto_font = rendering_files.joinpath("assets", "fonts", "NotoSans-Regular.woff2")
 
-    # Then: clean wheel installs can find the same bundled assets.
+    # Then: clean wheel installs can discover the complete canonical Skill bundle.
     assert skill_entrypoint.is_file()
+    assert openai_metadata.is_file()
     assert system_template.is_file()
     assert noto_font.is_file()
-    assert "career-resume-tailor" in skill_entrypoint.read_text(encoding="utf-8")
-
-
-def test_host_installation_fixtures_keep_policy_identical_across_hosts(tmp_path: Path) -> None:
-    # Given: a fresh workspace initialized for every supported host.
-    runner = CliRunner()
-
-    # When: the all-host adapter install runs.
-    result = runner.invoke(app, ["init", "--workspace", str(tmp_path), "--agent", "all"])
-
-    # Then: Codex/OpenCode and Claude receive the same policy bundle content.
-    assert result.exit_code == 0
-    shared_skill = tmp_path / ".agents" / "skills" / "career-resume-tailor"
-    claude_skill = tmp_path / ".claude" / "plugins" / "career-resume-tailor"
-    for relative in (
-        "SKILL.md",
-        "references/fact-policy.md",
-        "references/proposal-contract.md",
-        "references/rendering.md",
-        "references/workflow.md",
-    ):
-        assert (shared_skill / relative).read_bytes() == (claude_skill / relative).read_bytes()
-
-
-def test_init_preserves_existing_user_skill_file(tmp_path: Path) -> None:
-    # Given: a user-owned Codex/OpenCode skill with the same name.
-    target = tmp_path / ".agents" / "skills" / "career-resume-tailor" / "SKILL.md"
-    target.parent.mkdir(parents=True)
-    _ = target.write_text("user-owned skill\n", encoding="utf-8")
-    runner = CliRunner()
-
-    # When: Codex initialization runs.
-    result = runner.invoke(app, ["init", "--workspace", str(tmp_path), "--agent", "codex"])
-
-    # Then: user content is preserved and the conflict is reported.
-    assert result.exit_code == 0
-    payload = RESULT_ADAPTER.validate_json(result.stdout)
-    assert target.read_text(encoding="utf-8") == "user-owned skill\n"
-    assert payload.installations[0].status == "exists-different"
+    for relative in REFERENCE_FILES:
+        assert skill_files.joinpath("career_resume_tailor", *relative.split("/")).is_file()

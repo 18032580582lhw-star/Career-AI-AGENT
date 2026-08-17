@@ -88,6 +88,10 @@ class HostValidationResult(FrozenContractModel):
     state: RunState
     proposal_hash: Sha256 | None = None
     validation_hash: Sha256 | None = None
+    validation_artifact: str | None = None
+    finding_count: Annotated[int, Field(ge=0)] = 0
+    finding_codes: tuple[NonEmptyText, ...] = ()
+    next_machine_instruction: NonEmptyText
 
 
 class HostRenderItem(FrozenContractModel):
@@ -123,7 +127,7 @@ class HostRunError(Exception):
 
 def expand_render_formats(render_format: HostRenderFormat) -> tuple[HostRenderFormat, ...]:
     """Expand the aggregate render format into concrete formats."""
-    match render_format:
+    match render_format:  # noqa: MATCH_OK - exhaustive enum; dead default is a type error.
         case HostRenderFormat.ALL:
             return (
                 HostRenderFormat.DOCX,

@@ -34,6 +34,7 @@ from career_ai.tailoring.host_run_persistence import (
     PROPOSAL_FILE,
     REQUEST_FILE,
     VALIDATION_FILE,
+    artifact_name,
     ensure_run_dir,
     hash_text,
     load_proposal,
@@ -75,7 +76,7 @@ def validate_host_draft(
         message = f"proposal_file must contain strict JSON: {error}"
         raise HostRunError(message) from error
     context = load_run_context(workspace, run_id)
-    match proposal_input:
+    match proposal_input:  # noqa: MATCH_OK - exhaustive union; dead default is a type error.
         case HostStructuredProposalPackage(draft=draft, proposal=proposal):
             result = run_host_proposal_workflow(context, (proposal,), context.task_package())
             outcome = result.outcomes[0]
@@ -88,10 +89,7 @@ def validate_host_draft(
                         context.candidate_facts,
                     )
                 except DocumentAcceptanceError as error:
-                    message = (
-                        "structured proposal package failed document acceptance: "
-                        f"{error}"
-                    )
+                    message = f"structured proposal package failed document acceptance: {error}"
                     raise HostRunError(message) from error
                 _save_structured_validation(
                     workspace=workspace,
@@ -124,16 +122,11 @@ def tailor_with_api(
             run_id=run_id,
             source=ProposalSource.API,
             state=RunState.REJECTED,
+            next_machine_instruction=_next_machine_instruction(RunState.REJECTED),
         )
     best = max(result.outcomes, key=lambda item: item.score)
     _save_best_validation(workspace, run_id, best.proposal, best.decision)
-    return HostValidationResult(
-        run_id=run_id,
-        source=ProposalSource.API,
-        state=best.state,
-        proposal_hash=best.proposal.proposal_hash,
-        validation_hash=best.decision.decision.validation_hash,
-    )
+    return _validation_result(run_id, best, source=ProposalSource.API)
 
 
 def confirm_host_fact(
@@ -154,18 +147,14 @@ def confirm_host_fact(
             run_id=run_id,
             source=ProposalSource.HOST,
             state=RunState.REJECTED,
+            validation_artifact=artifact_name(run_id, VALIDATION_FILE),
+            next_machine_instruction=_next_machine_instruction(RunState.REJECTED),
         )
     proposal = load_proposal(workspace, run_id)
     context = load_run_context(workspace, run_id)
     result = run_host_proposal_workflow(context, (proposal,), context.task_package())
     _save_best_validation(workspace, run_id, proposal, result.outcomes[0].decision)
-    return HostValidationResult(
-        run_id=run_id,
-        source=ProposalSource.HOST,
-        state=result.outcomes[0].state,
-        proposal_hash=proposal.proposal_hash,
-        validation_hash=result.outcomes[0].decision.decision.validation_hash,
-    )
+    return _validation_result(run_id, result.outcomes[0])
 
 
 def save_accepted_run(  # noqa: PLR0913 - persists a complete accepted fixture.
@@ -229,11 +218,44 @@ def _save_structured_validation(  # noqa: PLR0913 - persists the render-ready ru
     write_candidate_facts(run_dir / FACTS_FILE, candidate_facts)
 
 
-def _validation_result(run_id: str, outcome: ProposalOutcome) -> HostValidationResult:
+def _validation_result(
+    run_id: str,
+    outcome: ProposalOutcome,
+    *,
+    source: ProposalSource = ProposalSource.HOST,
+) -> HostValidationResult:
+    findings = outcome.decision.decision.findings
     return HostValidationResult(
         run_id=run_id,
-        source=ProposalSource.HOST,
+        source=source,
         state=outcome.state,
         proposal_hash=outcome.proposal.proposal_hash,
         validation_hash=outcome.decision.decision.validation_hash,
+        validation_artifact=artifact_name(run_id, VALIDATION_FILE),
+        finding_count=len(findings),
+        finding_codes=tuple(finding.code for finding in findings),
+        next_machine_instruction=_next_machine_instruction(outcome.state),
     )
+
+
+def _next_machine_instruction(state: RunState) -> str:
+    match state:  # noqa: MATCH_OK - exhaustive enum; dead default is a type error.
+        case RunState.ACCEPTED:
+            instruction = "Run career-ai-agent render for this accepted run."
+        case RunState.NEEDS_CONFIRMATION:
+            instruction = "Collect an explicit user decision, then run career-ai-agent confirm."
+        case RunState.REJECTED:
+            instruction = (
+                "Repair the proposal findings and run career-ai-agent validate-draft again."
+            )
+        case RunState.STALE:
+            instruction = (
+                "Run career-ai-agent prepare again and bind a new proposal to current inputs."
+            )
+        case RunState.DRAFT:
+            instruction = "Run career-ai-agent validate-draft with a strict JSON proposal."
+        case RunState.VALIDATING:
+            instruction = "Wait for validation to finish before taking another action."
+        case RunState.RENDERED:
+            instruction = "Inspect the rendered artifacts and their manifests."
+    return instruction

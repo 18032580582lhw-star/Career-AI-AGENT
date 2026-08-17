@@ -3,7 +3,7 @@
 Use explicit file arguments on every host, especially on Windows.
 
 1. Initialize once:
-   `career-ai-agent init --workspace <workspace> --agent <codex|claude|opencode|all>`
+   `career-ai-agent init --workspace <workspace> --agent <codex|claude|all>`
 2. Prepare:
    `career-ai-agent prepare --workspace <workspace> --resume-file <resume> --jd-file <jd> [--latex-template <resume.tex>]`
 3. Host proposal:

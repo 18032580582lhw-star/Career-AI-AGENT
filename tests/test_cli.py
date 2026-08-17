@@ -1,14 +1,12 @@
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
 
-from career_ai.agent.execution_loop import AgentRuntimeOptions
-from career_ai.agent.executor import run_career_agent as run_real_career_agent
-from career_ai.agent.models import AgentRun
-from career_ai.agent.quality import CareerQualityCheck, CareerQualityReport
+from career_ai.application.career_fit_service import CareerFitRunResult
 from career_ai.cli import app
-from career_ai.llm.client import LLMClient
 from career_ai.rendering.html_installation import (
     InstallCheckCode,
     InstallRendererResult,
@@ -115,62 +113,64 @@ def test_cli_analyze_runs_with_inline_resume_and_jd() -> None:
     assert "AI Product Analyst" in result.stdout
     assert "Match score" in result.stdout
     assert "Quality: PASS" in result.stdout
-    assert "Trace: " in result.stdout
+    assert "Audit ID: " in result.stdout
     assert "Failed checks: none" in result.stdout
-    assert "Completed tools:" in result.stdout
-    assert "Skipped tools: none" in result.stdout
-    assert "Memory summary: available" in result.stdout
+    assert "Workflow steps:" in result.stdout
 
 
-def test_cli_analyze_prints_failed_quality_checks(monkeypatch: pytest.MonkeyPatch) -> None:
-    def run_with_failed_quality(
-        *,
-        resume_text: str,
-        jd_text: str,
-        prompt_dir: Path,
-        llm_client: LLMClient,
-        runtime_options: AgentRuntimeOptions | None = None,
-    ) -> AgentRun:
-        agent_run = run_real_career_agent(
-            resume_text=resume_text,
-            jd_text=jd_text,
-            prompt_dir=prompt_dir,
-            llm_client=llm_client,
-            runtime_options=runtime_options,
-        )
-        failed_quality = CareerQualityReport(
-            checks=[
-                CareerQualityCheck(
-                    name="factual_consistency",
-                    passed=False,
-                    message="Remove unsupported resume claims.",
-                ),
-                CareerQualityCheck(
-                    name="prompt_strategy_available",
-                    passed=True,
-                    message="Prompt strategy comparison is available.",
-                ),
-            ],
-        )
-        return agent_run.model_copy(update={"quality_report": failed_quality})
-
-    monkeypatch.setattr("career_ai.cli.run_career_agent", run_with_failed_quality)
+def test_cli_analyze_json_is_typed_and_privacy_safe() -> None:
     runner = CliRunner()
-
+    resume_text = "Private Candidate secret@example.com using Python and SQL."
+    jd_text = (
+        "Role: Data Analyst SECRET_JD_TOKEN api_key=secret-token "
+        "C:\\Users\\Private\\jd.txt. Requires Python and SQL."
+    )
     result = runner.invoke(
         app,
         [
             "analyze",
             "--resume-text",
-            "Product analyst using Python SQL Streamlit dashboards.",
+            resume_text,
             "--jd-text",
-            "Role: AI Product Analyst. Requires Python, SQL, Streamlit, LLM evaluation.",
+            jd_text,
+            "--output",
+            "json",
         ],
     )
 
     assert result.exit_code == 0
-    assert "Quality: FAIL" in result.stdout
-    assert "Failed checks: factual_consistency - Remove unsupported resume claims." in result.stdout
+    parsed = CareerFitRunResult.model_validate_json(result.stdout)
+    assert parsed.workflow.report.jd_analysis.role_title == "Data Analyst"
+    assert parsed.quality.passed
+    assert parsed.run_record.operation == "career_fit_analysis"
+    assert resume_text not in result.stdout
+    assert jd_text not in result.stdout
+    assert str(Path.cwd().resolve()) not in result.stdout
+    assert "secret@example.com" not in result.stdout
+    assert "SECRET_JD_TOKEN" not in result.stdout
+    assert "secret-token" not in result.stdout
+    assert "C:\\Users\\Private" not in result.stdout
+
+
+def test_cli_import_does_not_eagerly_load_agent_or_llm_namespaces() -> None:
+    # Given: a fresh interpreter imports the deterministic CLI composition root.
+    script = (
+        "import sys; import career_ai.cli; "
+        "print(any(name == 'career_ai.agent' or name.startswith('career_ai.agent.') "
+        "or name == 'career_ai.llm' or name.startswith('career_ai.llm.') "
+        "for name in sys.modules))"
+    )
+
+    # When: import state is inspected before any doctor/eval-matrix command runs.
+    completed = subprocess.run(  # noqa: S603 - fixed interpreter and inline probe.
+        [sys.executable, "-c", script],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    # Then: analyze/eval startup remains independent of obsolete runtime namespaces.
+    assert completed.stdout.strip() == "False"
 
 
 def test_cli_eval_prints_deterministic_eval_summary() -> None:

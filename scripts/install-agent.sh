@@ -3,7 +3,6 @@ set -euo pipefail
 
 repo_url=""
 install_root="$PWD"
-agent="all"
 checkout_dir=""
 update=0
 skip_eval=0
@@ -15,7 +14,6 @@ Usage:
 
 Options:
   --install-root DIR     Directory that will contain the checkout.
-  --agent NAME           codex, claude, opencode, or all. Default: all.
   --checkout-dir NAME    Override checkout directory name.
   --update               Run git pull --ff-only in an existing checkout.
   --skip-eval            Skip eval and eval-matrix after install.
@@ -31,10 +29,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --install-root)
       install_root="${2:-}"
-      shift 2
-      ;;
-    --agent)
-      agent="${2:-}"
       shift 2
       ;;
     --checkout-dir)
@@ -66,14 +60,6 @@ if [[ -z "$repo_url" ]]; then
   usage >&2
   exit 2
 fi
-
-case "$agent" in
-  codex|claude|opencode|all) ;;
-  *)
-    echo "--agent must be codex, claude, opencode, or all" >&2
-    exit 2
-    ;;
-esac
 
 step() {
   printf '\n==> %s\n' "$1"
@@ -168,7 +154,29 @@ step "Running doctor"
 "$cli" doctor
 
 step "Installing host Skill adapters"
-"$cli" init --workspace "$project_dir" --agent "$agent"
+init_json="$("$cli" init --workspace "$project_dir" --agent all)"
+printf '%s' "$init_json" | "$venv_python" -c '
+import json
+import os
+import sys
+
+payload = json.load(sys.stdin)
+installations = payload.get("installations", [])
+expected = {
+    "codex": os.path.abspath(sys.argv[1]),
+    "claude": os.path.abspath(sys.argv[2]),
+}
+actual = {
+    item.get("agent"): os.path.abspath(item.get("target", ""))
+    for item in installations
+}
+if len(installations) != 2 or actual != expected:
+    raise SystemExit(
+        "init did not report exactly one Codex Skill and one Claude Skill "
+        "at the expected project paths"
+    )
+' "$project_dir/.agents/skills/career-resume-tailor" "$project_dir/.claude/skills/career-resume-tailor"
+printf '%s\n' "$init_json"
 
 if [[ "$skip_eval" -eq 0 ]]; then
   step "Running eval"
@@ -181,5 +189,5 @@ fi
 step "Installed"
 printf 'Project: %s\n' "$project_dir"
 printf 'CLI: %s\n' "$cli"
-printf 'Codex/OpenCode Skill: %s\n' "$project_dir/.agents/skills/career-resume-tailor"
-printf 'Claude Skill: %s\n' "$project_dir/.claude/plugins/career-resume-tailor"
+printf 'Codex Skill: %s\n' "$project_dir/.agents/skills/career-resume-tailor"
+printf 'Claude Skill: %s\n' "$project_dir/.claude/skills/career-resume-tailor"

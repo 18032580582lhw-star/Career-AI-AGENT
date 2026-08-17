@@ -5,33 +5,27 @@ from typing import Final, override
 
 from pydantic import Field
 
-from career_ai.agent.trace import (
-    CareerRunTrace,
-    HarnessTraceConfiguration,
-    ProviderCapabilityTraceSummary,
-    ToolTraceEvent,
-)
 from career_ai.evals.models import CareerEvalCase, EvalCaseInput, ExpectedCareerSignals
 from career_ai.models import FrozenModel
+from career_ai.workflows.run_record import (
+    CareerFitRunRecord,
+    RunQualityCheckRecord,
+)
 
 RECOVERABLE_FAILURE_STATUS: Final[str] = "failed-recoverable"
 COMPLETED_WITH_RECOVERY_STATUS: Final[str] = "completed-with-recovery"
 DEFAULT_DRAFT_PROMPT_STRATEGY_MIN: Final[int] = 3
 CONTACT_NAME_PATTERN_PREFIX: Final[str] = r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}\s+"
-CONTACT_NAME_PATTERN_SUFFIX: Final[str] = (
-    r"(?=[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})"
-)
+CONTACT_NAME_PATTERN_SUFFIX: Final[str] = r"(?=[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})"
 CONTACT_NAME_PATTERN: Final[str] = f"{CONTACT_NAME_PATTERN_PREFIX}{CONTACT_NAME_PATTERN_SUFFIX}"
-CREDENTIAL_PATTERN_PREFIX: Final[str] = (
-    r"\b(?:sk-[A-Za-z0-9_-]{8,}|Bearer\s+[A-Za-z0-9._-]+|"
-)
+CREDENTIAL_PATTERN_PREFIX: Final[str] = r"\b(?:sk-[A-Za-z0-9_-]{8,}|Bearer\s+[A-Za-z0-9._-]+|"
 CREDENTIAL_PATTERN_SUFFIX: Final[str] = r"api[_-]?key\s*=\s*[A-Za-z0-9._-]+)"
 CREDENTIAL_PATTERN: Final[str] = f"{CREDENTIAL_PATTERN_PREFIX}{CREDENTIAL_PATTERN_SUFFIX}"
 
 
 @unique
 class FailureCorpusReviewState(StrEnum):
-    """Review lifecycle for a trace-derived regression candidate."""
+    """Review lifecycle for a run-record-derived regression candidate."""
 
     CANDIDATE = "candidate"
     ACCEPTED = "accepted"
@@ -47,20 +41,18 @@ class FailureCorpusInputSummary(FrozenModel):
 
 
 class FailureCorpusRecord(FrozenModel):
-    """Sanitized trace-derived candidate for future regression coverage."""
+    """Sanitized workflow candidate for future regression coverage."""
 
     id: str = Field(min_length=1)
     source_run_id: str = Field(min_length=1)
     review_state: FailureCorpusReviewState
     failure_category: str = Field(min_length=1)
-    provider: str = Field(min_length=1)
-    agent_mode: str = Field(min_length=1)
+    operation: str = Field(min_length=1)
     final_status: str = Field(min_length=1)
-    provider_capabilities: ProviderCapabilityTraceSummary
-    harness: HarnessTraceConfiguration
     input_summary: FailureCorpusInputSummary
     expected_behavior: str = Field(min_length=1)
-    tool_events: list[ToolTraceEvent] = Field(default_factory=list)
+    step_names: list[str] = Field(default_factory=list)
+    quality_checks: list[RunQualityCheckRecord] = Field(default_factory=list)
     feedback: str = ""
 
     def move_to(self, state: FailureCorpusReviewState) -> "FailureCorpusRecord":
@@ -82,26 +74,24 @@ class FailureCorpusConversionError(Exception):
 
 
 def create_failure_candidate(
-    trace: CareerRunTrace,
+    run_record: CareerFitRunRecord,
     feedback: str | None = None,
 ) -> FailureCorpusRecord:
-    """Create a sanitized regression candidate from a failed run trace."""
+    """Create a sanitized regression candidate from a workflow run record."""
     record = FailureCorpusRecord(
-        id=f"failure-{_slugify(trace.run_id)}",
-        source_run_id=trace.run_id,
+        id=f"failure-{_slugify(run_record.run_id)}",
+        source_run_id=run_record.run_id,
         review_state=FailureCorpusReviewState.CANDIDATE,
-        failure_category=_failure_category(trace.final_status),
-        provider=trace.provider,
-        agent_mode=trace.agent_mode,
-        final_status=trace.final_status,
-        provider_capabilities=trace.provider_capabilities,
-        harness=trace.harness,
+        failure_category=_failure_category(run_record.final_status),
+        operation=run_record.operation,
+        final_status=run_record.final_status,
         input_summary=FailureCorpusInputSummary(
-            resume_character_count=trace.input_summary.resume_character_count,
-            jd_character_count=trace.input_summary.jd_character_count,
+            resume_character_count=run_record.input_summary.resume_character_count,
+            jd_character_count=run_record.input_summary.jd_character_count,
         ),
-        expected_behavior=trace.expected_behavior,
-        tool_events=trace.tool_events,
+        expected_behavior=run_record.expected_behavior,
+        step_names=run_record.step_names,
+        quality_checks=run_record.quality_checks,
         feedback=feedback or "",
     )
     return sanitize_failure_record(record)
@@ -111,10 +101,21 @@ def sanitize_failure_record(record: FailureCorpusRecord) -> FailureCorpusRecord:
     """Redact sensitive strings from a failure-corpus record."""
     return record.model_copy(
         update={
+            "id": _sanitize_text(record.id),
             "source_run_id": _sanitize_text(record.source_run_id),
-            "tool_events": [
-                event.model_copy(update={"message": _sanitize_text(event.message)})
-                for event in record.tool_events
+            "failure_category": _sanitize_text(record.failure_category),
+            "operation": _sanitize_text(record.operation),
+            "final_status": _sanitize_text(record.final_status),
+            "expected_behavior": _sanitize_text(record.expected_behavior),
+            "step_names": [_sanitize_text(name) for name in record.step_names],
+            "quality_checks": [
+                check.model_copy(
+                    update={
+                        "name": _sanitize_text(check.name),
+                        "code": _sanitize_text(check.code),
+                    },
+                )
+                for check in record.quality_checks
             ],
             "feedback": _sanitize_text(record.feedback),
         },
@@ -123,6 +124,7 @@ def sanitize_failure_record(record: FailureCorpusRecord) -> FailureCorpusRecord:
 
 def failure_record_to_eval_case_draft(record: FailureCorpusRecord) -> CareerEvalCase:
     """Convert an accepted failure candidate into a redacted eval-case draft."""
+    record = sanitize_failure_record(record)
     match record.review_state:
         case FailureCorpusReviewState.ACCEPTED:
             return CareerEvalCase(
@@ -158,6 +160,8 @@ def failure_record_to_eval_case_draft(record: FailureCorpusRecord) -> CareerEval
 
 
 def _failure_category(final_status: str) -> str:
+    if final_status == "failed-quality":
+        return "failed_quality_check"
     if final_status == RECOVERABLE_FAILURE_STATUS:
         return "recoverable_tool_failure"
     if final_status == COMPLETED_WITH_RECOVERY_STATUS:

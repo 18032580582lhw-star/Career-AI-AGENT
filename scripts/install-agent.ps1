@@ -5,9 +5,6 @@ param(
 
     [string]$InstallRoot = (Get-Location).Path,
 
-    [ValidateSet("codex", "claude", "opencode", "all")]
-    [string]$Agent = "all",
-
     [string]$CheckoutDir = "",
 
     [switch]$Update,
@@ -157,7 +154,35 @@ Write-Step "Running doctor"
 Invoke-Checked -Command $cliPath -Arguments @("doctor")
 
 Write-Step "Installing host Skill adapters"
-Invoke-Checked -Command $cliPath -Arguments @("init", "--workspace", $projectPath, "--agent", $Agent)
+$initOutput = & $cliPath init --workspace $projectPath --agent all
+if ($LASTEXITCODE -ne 0) {
+    throw "Command failed: $cliPath init --workspace $projectPath --agent all"
+}
+$initResult = ($initOutput -join "`n") | ConvertFrom-Json
+$installations = @($initResult.installations)
+$installedAgents = @($installations.agent | Sort-Object -Unique)
+if (
+    $installations.Count -ne 2 -or
+    $installedAgents.Count -ne 2 -or
+    $installedAgents[0] -ne "claude" -or
+    $installedAgents[1] -ne "codex"
+) {
+    throw "init did not report exactly one Codex Skill and one Claude Skill installation."
+}
+$expectedTargets = @{
+    codex = [System.IO.Path]::GetFullPath(
+        (Join-Path $projectPath ".agents\skills\career-resume-tailor")
+    )
+    claude = [System.IO.Path]::GetFullPath(
+        (Join-Path $projectPath ".claude\skills\career-resume-tailor")
+    )
+}
+foreach ($installation in $installations) {
+    if ([System.IO.Path]::GetFullPath($installation.target) -ne $expectedTargets[$installation.agent]) {
+        throw "init reported an unexpected $($installation.agent) Skill target: $($installation.target)"
+    }
+}
+$initOutput | Write-Host
 
 if (-not $SkipEval) {
     Write-Step "Running eval"
@@ -182,5 +207,5 @@ if (-not $SkipEval) {
 Write-Step "Installed"
 Write-Host "Project: $projectPath"
 Write-Host "CLI: $cliPath"
-Write-Host "Codex/OpenCode Skill: $(Join-Path $projectPath '.agents\skills\career-resume-tailor')"
-Write-Host "Claude Skill: $(Join-Path $projectPath '.claude\plugins\career-resume-tailor')"
+Write-Host "Codex Skill: $(Join-Path $projectPath '.agents\skills\career-resume-tailor')"
+Write-Host "Claude Skill: $(Join-Path $projectPath '.claude\skills\career-resume-tailor')"

@@ -1,0 +1,7 @@
+{
+  "case_id": "stale_tampered",
+  "proposal_variant": "stale",
+  "expected_state": "stale",
+  "expected_finding_codes": [],
+  "render_expected": false
+}

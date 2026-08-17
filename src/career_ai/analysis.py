@@ -1,3 +1,4 @@
+import re
 from typing import Final
 
 from career_ai.models import BulletSuggestion, CareerFitReport, JDAnalysis, SkillGap
@@ -22,6 +23,10 @@ We are hiring an AI Product Analyst to evaluate LLM-powered workflows for job se
 Requirements include Python, SQL, Streamlit, prompt engineering, data analysis, dashboard
 storytelling, stakeholder communication, and LLM evaluation.
 """
+ROLE_TITLE_PATTERN: Final[re.Pattern[str]] = re.compile(
+    r"^(.{1,80}?\b(?:analyst|engineer|manager|designer|developer|scientist|writer))\b",
+    flags=re.IGNORECASE,
+)
 
 
 def get_sample_inputs() -> tuple[str, str]:
@@ -76,11 +81,7 @@ def improve_resume_bullets(
     suggestions: list[BulletSuggestion] = []
     for bullet in bullets:
         bullet_normalized = normalize_text(bullet)
-        evidenced_keywords = [
-            keyword
-            for keyword in jd_keywords
-            if keyword in bullet_normalized
-        ]
+        evidenced_keywords = [keyword for keyword in jd_keywords if keyword in bullet_normalized]
         improved = _rewrite_bullet(bullet, evidenced_keywords)
         suggestions.append(
             BulletSuggestion(
@@ -98,7 +99,9 @@ def _extract_role_title(jd_text: str) -> str:
         clean = line.strip()
         lowered = clean.lower()
         if lowered.startswith("role:"):
-            return clean.split(":", maxsplit=1)[1].strip()
+            candidate = clean.split(":", maxsplit=1)[1].strip()
+            match = ROLE_TITLE_PATTERN.match(candidate)
+            return match.group(1).strip() if match is not None else "Target Role"
         if "ai product analyst" in lowered:
             return "AI Product Analyst"
     return "Target Role"
@@ -116,9 +119,7 @@ def _extract_seniority(jd_text: str) -> str:
 def _extract_requirements(jd_text: str, keywords: list[str]) -> list[str]:
     lines = [line.strip(" -") for line in jd_text.splitlines() if line.strip()]
     requirement_lines = [
-        line
-        for line in lines
-        if any(keyword in line.lower() for keyword in keywords)
+        line for line in lines if any(keyword in line.lower() for keyword in keywords)
     ]
     return requirement_lines[:6] or keywords[:6]
 
@@ -143,8 +144,7 @@ def _rewrite_bullet(bullet: str, evidenced_keywords: list[str]) -> str:
 def _build_rewritten_resume(resume_text: str, suggestions: list[BulletSuggestion]) -> str:
     replacements = {suggestion.original: suggestion.improved for suggestion in suggestions}
     rewritten_lines = [
-        replacements.get(line.strip(" -•\t"), line)
-        for line in resume_text.splitlines()
+        replacements.get(line.strip(" -•\t"), line) for line in resume_text.splitlines()
     ]
     return "\n".join(rewritten_lines).strip()
 

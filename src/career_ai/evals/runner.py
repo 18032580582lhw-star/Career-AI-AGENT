@@ -2,10 +2,9 @@ from pathlib import Path
 
 from pydantic import Field
 
-from career_ai.agent.executor import run_career_agent
+from career_ai.application.career_fit_service import CareerFitApplicationService
 from career_ai.evals.graders import EvalCaseResult, grade_case
 from career_ai.evals.loader import load_eval_cases
-from career_ai.llm.client import LLMClient
 from career_ai.models import FrozenModel
 
 
@@ -22,18 +21,16 @@ def run_eval_suite(
     *,
     case_dir: Path,
     prompt_dir: Path,
-    llm_client: LLMClient,
 ) -> EvalSuiteResult:
-    """Run every eval case through the agent harness and deterministic graders."""
+    """Run every eval case through the deterministic application service."""
+    service = CareerFitApplicationService(prompt_dir=prompt_dir)
     case_results: list[EvalCaseResult] = []
     for case in load_eval_cases(case_dir):
-        agent_run = run_career_agent(
+        run_result = service.run(
             resume_text=case.input.resume_text,
             jd_text=case.input.jd_text,
-            prompt_dir=prompt_dir,
-            llm_client=llm_client,
         )
-        case_results.append(grade_case(case, agent_run.workflow))
+        case_results.append(grade_case(case, run_result.workflow))
     passed_cases = sum(1 for case_result in case_results if case_result.passed)
     total_cases = len(case_results)
     return EvalSuiteResult(

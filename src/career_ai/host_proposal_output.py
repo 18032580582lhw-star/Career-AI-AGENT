@@ -31,7 +31,7 @@ def print_prepare_result(
     output: CliOutputMode,
 ) -> None:
     """Print prepare output according to the selected terminal mode."""
-    match output:
+    match output:  # noqa: MATCH_OK - exhaustive enum; BasedPyright rejects dead default.
         case CliOutputMode.RESULT:
             _print_prepare_summary(console, result)
         case CliOutputMode.PROCESS:
@@ -47,7 +47,7 @@ def print_validation_result(
     output: CliOutputMode,
 ) -> None:
     """Print validation output according to the selected terminal mode."""
-    match output:
+    match output:  # noqa: MATCH_OK - exhaustive enum; BasedPyright rejects dead default.
         case CliOutputMode.RESULT:
             _print_validation_summary(console, result)
         case CliOutputMode.PROCESS:
@@ -63,7 +63,7 @@ def print_render_result(
     output: CliOutputMode,
 ) -> None:
     """Print render output according to the selected terminal mode."""
-    match output:
+    match output:  # noqa: MATCH_OK - exhaustive enum; BasedPyright rejects dead default.
         case CliOutputMode.RESULT:
             _print_render_summary(console, result)
         case CliOutputMode.PROCESS:
@@ -79,7 +79,7 @@ def print_latex_profile(
     output: CliOutputMode,
 ) -> None:
     """Print LaTeX inspection output according to the selected terminal mode."""
-    match output:
+    match output:  # noqa: MATCH_OK - exhaustive enum; BasedPyright rejects dead default.
         case CliOutputMode.RESULT:
             _print_latex_profile_summary(console, profile)
         case CliOutputMode.PROCESS:
@@ -108,6 +108,8 @@ def _print_validation_summary(console: Console, result: HostValidationResult) ->
     console.print(f"Proposal source: {result.source.value}")
     if result.proposal_hash is not None:
         console.print(f"Proposal hash: {result.proposal_hash}")
+    console.print(f"Findings: {result.finding_count}")
+    console.print(f"Next: {result.next_machine_instruction}")
 
 
 def _print_render_summary(console: Console, result: HostRenderResult) -> None:

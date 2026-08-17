@@ -1,0 +1,7 @@
+{
+  "case_id": "needs_confirmation",
+  "proposal_variant": "inference",
+  "expected_state": "needs_confirmation",
+  "expected_finding_codes": ["inference_requires_confirmation"],
+  "render_expected": false
+}

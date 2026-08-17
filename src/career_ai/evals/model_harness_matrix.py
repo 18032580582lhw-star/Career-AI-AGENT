@@ -67,8 +67,7 @@ def run_model_harness_matrix(
 ) -> ModelHarnessMatrixResult:
     """Run eval cases across provider/model/harness configurations."""
     row_results = [
-        _run_matrix_row(case_dir=case_dir, prompt_dir=prompt_dir, row=row)
-        for row in rows
+        _run_matrix_row(case_dir=case_dir, prompt_dir=prompt_dir, row=row) for row in rows
     ]
     return ModelHarnessMatrixResult(
         total_rows=len(row_results),
@@ -76,8 +75,7 @@ def run_model_harness_matrix(
         failed_rows=sum(1 for row_result in row_results if row_result.status == "failed"),
         skipped_rows=sum(1 for row_result in row_results if row_result.status == "skipped"),
         unsupported_capability_count=sum(
-            len(row_result.unsupported_capabilities)
-            for row_result in row_results
+            len(row_result.unsupported_capabilities) for row_result in row_results
         ),
         row_results=row_results,
     )
@@ -122,11 +120,7 @@ def _run_matrix_row(
             skip_reason="provider credentials or live client are not configured",
             unsupported_capabilities=[],
         )
-    eval_result = run_eval_suite(
-        case_dir=case_dir,
-        prompt_dir=prompt_dir,
-        llm_client=client,
-    )
+    eval_result = run_eval_suite(case_dir=case_dir, prompt_dir=prompt_dir)
     status: MatrixRowStatus = "passed" if eval_result.failed_cases == 0 else "failed"
     return ModelHarnessRowResult(
         name=row.name,

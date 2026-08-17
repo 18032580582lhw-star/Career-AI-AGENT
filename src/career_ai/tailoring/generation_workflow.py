@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 from pydantic import ValidationError
 from pydantic_core import PydanticCustomError
 
-from career_ai.llm.models import LLMRequest
 from career_ai.tailoring.adequacy import evaluate_optimization_adequacy
 from career_ai.tailoring.generation_models import (
     ProposalOutcome,
@@ -26,6 +25,7 @@ from career_ai.tailoring.state_machine import decide_validation_state
 
 if TYPE_CHECKING:
     from career_ai.llm.client import LLMClient
+    from career_ai.llm.models import LLMRequest
     from career_ai.tailoring.proposal_contracts import ResumeTailoringProposal, TailoringTaskPackage
 
 
@@ -89,12 +89,10 @@ def _provider_request(
     context: TailoringGenerationContext,
     strategy: ProposalStrategy,
 ) -> LLMRequest:
-    evidence = "\n".join(
-        f"- {fact.id}: {fact.statement}" for fact in context.candidate_facts
-    )
-    requirements = "\n".join(
-        f"- {item.id}: {item.statement}" for item in context.requirements
-    )
+    from career_ai.llm.models import LLMRequest  # noqa: PLC0415
+
+    evidence = "\n".join(f"- {fact.id}: {fact.statement}" for fact in context.candidate_facts)
+    requirements = "\n".join(f"- {item.id}: {item.statement}" for item in context.requirements)
     return LLMRequest(
         system_prompt=(
             "Return one ResumeTailoringProposal JSON object in a proposal envelope. "

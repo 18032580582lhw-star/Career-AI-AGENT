@@ -1,6 +1,6 @@
 # Agent Install Guide
 
-This guide lets Codex, Claude Code, OpenCode, or a human install the AI Career
+This guide lets Codex, Claude Code, or a human install the AI Career
 Intelligence Suite local agent from a GitHub project URL.
 
 Use the raw version of this file when asking an agent to install the project:
@@ -11,7 +11,7 @@ https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/docs/
 
 ## Agent Prompt
 
-Give this prompt to Codex, Claude Code, or OpenCode:
+Give this prompt to Codex or Claude Code:
 
 ```text
 Install the local AI Career Intelligence Suite agent from this GitHub project:
@@ -47,12 +47,12 @@ The host Skill is installed into:
 
 ```text
 .agents/skills/career-resume-tailor
-.claude/plugins/career-resume-tailor
+.claude/skills/career-resume-tailor
 .career_ai/skill-installations.json
 ```
 
-Codex and OpenCode share `.agents/skills/career-resume-tailor`. Claude Code uses
-`.claude/plugins/career-resume-tailor`.
+Codex uses `.agents/skills/career-resume-tailor`. Claude Code uses
+`.claude/skills/career-resume-tailor`.
 
 ## Windows / PowerShell Installer
 

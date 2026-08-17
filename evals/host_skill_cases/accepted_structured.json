@@ -1,0 +1,7 @@
+{
+  "case_id": "accepted_structured",
+  "proposal_variant": "structured",
+  "expected_state": "accepted",
+  "expected_finding_codes": [],
+  "render_expected": true
+}

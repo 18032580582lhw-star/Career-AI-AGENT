@@ -1,17 +1,18 @@
+import inspect
 from pathlib import Path
 
+import career_ai.evals.runner as eval_runner
 from career_ai.evals.graders import EvalCaseResult, EvalCheckResult
 from career_ai.evals.runner import EvalSuiteResult, collect_failed_check_messages, run_eval_suite
-from career_ai.llm.client import FakeLLMClient
 
 
-def test_run_eval_suite_runs_fake_provider_cases_and_summarizes_results() -> None:
-    # Given: the repository golden eval cases and deterministic fake provider.
+def test_run_eval_suite_runs_deterministic_service_and_summarizes_results() -> None:
+    # Given: the repository golden eval cases and deterministic application service.
     case_dir = Path("evals/career_cases")
     prompt_dir = Path("prompts")
 
-    # When: the eval suite runs through the harness.
-    result = run_eval_suite(case_dir=case_dir, prompt_dir=prompt_dir, llm_client=FakeLLMClient())
+    # When: the eval suite runs without a provider or model client.
+    result = run_eval_suite(case_dir=case_dir, prompt_dir=prompt_dir)
 
     # Then: every case has check results and the aggregate counts balance.
     assert result.total_cases >= 1
@@ -19,6 +20,17 @@ def test_run_eval_suite_runs_fake_provider_cases_and_summarizes_results() -> Non
     assert all(case_result.checks for case_result in result.case_results)
     assert result.passed_cases + result.failed_cases == result.total_cases
     assert result.failed_cases == 0
+
+
+def test_eval_runner_has_no_agent_or_llm_dependency() -> None:
+    # Given: the eval runner implementation after the deterministic migration.
+    source = inspect.getsource(eval_runner)
+
+    # When: its application-layer dependencies are inspected.
+    forbidden_imports = ("career_ai.agent", "career_ai.llm")
+
+    # Then: neither obsolete runtime namespace is referenced.
+    assert all(forbidden not in source for forbidden in forbidden_imports)
 
 
 def test_collect_failed_check_messages_reports_only_failed_checks() -> None:

@@ -1,42 +1,29 @@
-# career-resume-tailor
+---
+name: career-resume-tailor
+description: Safely tailor resumes from a source resume and job description through the local Career AI CLI/Harness, with fact-preserving proposals, validation, explicit confirmation, and controlled DOCX, PDF, TeX, or LaTeX-PDF rendering. Use when Codex or Claude Code needs to prepare, review, confirm, repair, or render a resume-tailoring run without inventing claims.
+---
 
-Canonical host Skill for AI Career Intelligence Suite high-trust resume tailoring.
+# Career Resume Tailor
 
-This Skill only orchestrates the local CLI/Harness. The host may draft proposals,
-but the local Career AI workspace, validation harness, confirmation state, and
-renderers stay authoritative.
+Treat the local workspace, CLI/Harness validation, confirmation state, and renderers as authoritative. Treat host-model output only as an untrusted proposal until the Harness accepts it.
 
 ## Workflow
 
-1. prepare
-2. host proposal
-3. validate
-4. confirm/repair
-5. render
+1. **Prepare:** initialize the workspace when needed, then create a strict request package from the source resume and job description.
+2. **Propose:** draft one JSON proposal that conforms to the provided schema and preserves the source facts.
+3. **Validate:** pass the proposal file to `career-ai-agent validate-draft`; never infer acceptance from plausible prose.
+4. **Confirm or repair:** obtain explicit user confirmation for material changes, or repair only within the local repair limit.
+5. **Render:** render only an accepted structured package in the requested format.
 
-Use `career-ai-agent prepare` to create the strict request package. Ask the host
-model for a JSON proposal that conforms to the provided schema. Use
-`career-ai-agent validate-draft` before any confirmation or rendering step.
-If validation returns `needs_confirmation`, collect an explicit user decision and
-run `career-ai-agent confirm`. If validation returns repairable findings, repair
-at most through the local two-repair state policy. Render only accepted runs.
+Use explicit JSON files and paths for every handoff. Do not use heredocs, inline JSON, or shell pipelines.
 
-## Natural Language Requests
+## Stop Conditions
 
-The Skill supports user requests to generate DOCX/PDF, generate Overleaf .tex,
-use the user's own resume.tex, compile a LaTeX PDF, and check the LaTeX
-environment. These requests are routed to the CLI commands in
-`references/workflow.md` and the rendering policy in `references/rendering.md`.
+Stop before confirmation or rendering when validation fails, required evidence is missing, a factual claim exceeds its source, state is stale, the user rejects a material change, or the local repair limit is exhausted. Report the blocking finding and preserve the workspace for review.
 
-## Required References
+## References
 
-- `references/workflow.md`
-- `references/fact-policy.md`
-- `references/proposal-contract.md`
-- `references/rendering.md`
-
-## Host Neutrality
-
-Codex, Claude Code, and OpenCode must call the same `career-ai-agent` commands
-with explicit JSON file arguments. Host differences must not change factual
-safety, proposal validation, LaTeX inspection, or rendering policy.
+- Read [workflow.md](references/workflow.md) for commands and host options.
+- Read [fact-policy.md](references/fact-policy.md) before drafting or repairing claims.
+- Read [proposal-contract.md](references/proposal-contract.md) before producing proposal JSON.
+- Read [rendering.md](references/rendering.md) before creating output artifacts.

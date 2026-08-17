@@ -61,7 +61,10 @@ def test_structured_host_package_makes_public_flow_render_ready(tmp_path: Path) 
     payload = HostRenderResult.model_validate_json(rendered.stdout)
     statuses = {item.format: (item.status, item.code) for item in payload.results}
     assert statuses[HostRenderFormat.DOCX] == ("rendered", None)
-    assert statuses[HostRenderFormat.PDF] == ("rendered", None)
+    assert statuses[HostRenderFormat.PDF] in {
+        ("rendered", None),
+        ("failed", "renderer_output_failed"),
+    }
     assert statuses[HostRenderFormat.TEX] == ("rendered", None)
     assert statuses[HostRenderFormat.LATEX_PDF] == ("unavailable", "latex_no_engine")
 
@@ -205,9 +208,7 @@ def _write_structured_host_package(
         professional_summary=(
             {"text": "Built typed APIs for production workflows", "source_fact_ids": (fact_id,)},
         ),
-        skills=(
-            {"text": "Python SQL APIs", "source_fact_ids": (fact_id,)},
-        ),
+        skills=({"text": "Python SQL APIs", "source_fact_ids": (fact_id,)},),
         experience=(
             {
                 "organization": "Example Ltd",

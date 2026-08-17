@@ -35,7 +35,14 @@ def test_wheel_contains_cli_entrypoint_and_runtime_resources(tmp_path: Path) -> 
         names = set(wheel.namelist())
         entry_points = next(name for name in names if name.endswith(".dist-info/entry_points.txt"))
         assert "career_ai/skills/career_resume_tailor/SKILL.md" in names
-        assert "career_ai/skills/career_resume_tailor/references/workflow.md" in names
+        assert "career_ai/skills/career_resume_tailor/agents/openai.yaml" in names
+        for reference in (
+            "fact-policy.md",
+            "proposal-contract.md",
+            "rendering.md",
+            "workflow.md",
+        ):
+            assert f"career_ai/skills/career_resume_tailor/references/{reference}" in names
         assert "career_ai/rendering/latex/assets/system_resume.tex" in names
         assert "career_ai/rendering/assets/fonts/NotoSans-Regular.woff2" in names
         assert "career-ai-agent = career_ai.cli:app" in wheel.read(entry_points).decode("utf-8")

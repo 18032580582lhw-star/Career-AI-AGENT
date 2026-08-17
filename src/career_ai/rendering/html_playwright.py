@@ -10,7 +10,12 @@ from career_ai.rendering.html_pdf_engine import (
     SubprocessPlaywrightPdfEngine,
 )
 from career_ai.rendering.html_template import render_resume_html
-from career_ai.rendering.models import RendererOutcome, RendererSuccess
+from career_ai.rendering.models import (
+    RendererErrorCode,
+    RendererOutcome,
+    RendererSuccess,
+    RenderFailure,
+)
 from career_ai.tailoring.manifest_contracts import RenderBackend
 
 if TYPE_CHECKING:
@@ -30,9 +35,7 @@ class HtmlPlaywrightResumeRenderer:
 
     def __init__(self, pdf_engine: HtmlPdfEngine | None = None) -> None:
         """Create a renderer with a production or test PDF engine."""
-        self._pdf_engine = (
-            SubprocessPlaywrightPdfEngine() if pdf_engine is None else pdf_engine
-        )
+        self._pdf_engine = SubprocessPlaywrightPdfEngine() if pdf_engine is None else pdf_engine
 
     @property
     def backend(self) -> RenderBackend:
@@ -49,7 +52,14 @@ class HtmlPlaywrightResumeRenderer:
         html_path = output_directory / _HTML_NAME
         pdf_path = output_directory / _PDF_NAME
         _ = html_path.write_text(render_resume_html(document), encoding="utf-8")
-        _ = self._pdf_engine.render_pdf(html_path, pdf_path)
+        try:
+            _ = self._pdf_engine.render_pdf(html_path, pdf_path)
+        except OSError:
+            return RenderFailure(
+                backend=self.backend,
+                code=RendererErrorCode.OUTPUT_FAILED,
+                message="Playwright PDF output failed.",
+            )
         return RendererSuccess(
             backend=self.backend,
             artifacts=(

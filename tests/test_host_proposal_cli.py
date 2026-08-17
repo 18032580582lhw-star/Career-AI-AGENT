@@ -123,7 +123,10 @@ def test_tailor_host_mode_does_not_call_provider_api(
         message = "provider should not be built for host proposal mode"
         raise AssertionError(message)
 
-    monkeypatch.setattr("career_ai.cli.build_llm_client", forbidden_provider_call)
+    monkeypatch.setattr(
+        "career_ai.application.tailoring_service.build_llm_client",
+        forbidden_provider_call,
+    )
     runner = CliRunner()
 
     # When: host mode tailoring runs.

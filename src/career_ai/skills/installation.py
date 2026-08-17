@@ -6,9 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum, unique
 from hashlib import sha256
 from pathlib import Path
-from typing import Annotated, Final, Literal, assert_never
-
-from pydantic import Field
+from typing import Final, Literal, assert_never
 
 from career_ai.models import FrozenModel
 from career_ai.workspace import create_workspace, write_json_atomic
@@ -23,7 +21,6 @@ class HostAgent(StrEnum):
 
     CODEX = "codex"
     CLAUDE = "claude"
-    OPENCODE = "opencode"
     ALL = "all"
 
 
@@ -43,8 +40,7 @@ class HostSkillInstallation(FrozenModel):
     """One host-specific installation result."""
 
     agent: HostAgent
-    protocol: Annotated[str, Field(pattern=r"^(openai-agents|claude-plugin)$")]
-    template: str
+    format: Literal["agent-skill"] = "agent-skill"
     target: str
     status: Literal["installed", "present", "exists-different"]
     installed_hash: str | None = None
@@ -64,8 +60,6 @@ class SkillInstallationResult(FrozenModel):
 @dataclass(frozen=True, slots=True)
 class _InstallTarget:
     agent: HostAgent
-    protocol: str
-    template: str
     path: Path
 
 
@@ -108,19 +102,16 @@ def install_host_skills(*, workspace: Path, agent: HostAgent) -> SkillInstallati
 
 def _targets_for(root: Path, agent: HostAgent) -> tuple[_InstallTarget, ...]:
     shared = root / ".agents" / "skills" / SKILL_NAME
-    claude = root / ".claude" / "plugins" / SKILL_NAME
+    claude = root / ".claude" / "skills" / SKILL_NAME
     match agent:
         case HostAgent.CODEX:
-            return (_InstallTarget(agent, "openai-agents", "shared-skill", shared),)
-        case HostAgent.OPENCODE:
-            return (_InstallTarget(agent, "openai-agents", "shared-skill", shared),)
+            return (_InstallTarget(agent, shared),)
         case HostAgent.CLAUDE:
-            return (_InstallTarget(agent, "claude-plugin", "claude-bundle", claude),)
+            return (_InstallTarget(agent, claude),)
         case HostAgent.ALL:
             return (
-                _InstallTarget(HostAgent.CODEX, "openai-agents", "shared-skill", shared),
-                _InstallTarget(HostAgent.OPENCODE, "openai-agents", "shared-skill", shared),
-                _InstallTarget(HostAgent.CLAUDE, "claude-plugin", "claude-bundle", claude),
+                _InstallTarget(HostAgent.CODEX, shared),
+                _InstallTarget(HostAgent.CLAUDE, claude),
             )
         case _:
             assert_never(agent)
@@ -136,8 +127,6 @@ def _install_target(target: _InstallTarget) -> HostSkillInstallation:
     installed_hash = _tree_digest(target.path)
     return HostSkillInstallation(
         agent=target.agent,
-        protocol=target.protocol,
-        template=target.template,
         target=str(target.path),
         status=_combined_status(statuses),
         installed_hash=installed_hash,

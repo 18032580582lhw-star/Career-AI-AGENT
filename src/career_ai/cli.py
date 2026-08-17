@@ -1,20 +1,17 @@
+from enum import StrEnum, unique
 from pathlib import Path
 from typing import Annotated, Final
 
 import typer
 from rich.console import Console
 
-from career_ai.agent.executor import run_career_agent
-from career_ai.agent.planner import agent_mode_label
+from career_ai.application.career_fit_service import CareerFitApplicationService
+from career_ai.application.provider_status import read_provider_status
 from career_ai.evals.failure_corpus import (
     FailureCorpusRecord,
     failure_record_to_eval_case_draft,
 )
 from career_ai.evals.loader import EvalCaseLoadError
-from career_ai.evals.model_harness_matrix import (
-    default_model_harness_rows,
-    run_model_harness_matrix,
-)
 from career_ai.evals.runner import run_eval_suite
 from career_ai.host_doctor_cli import (
     install_latex_renderer_guidance,
@@ -24,8 +21,6 @@ from career_ai.host_init_cli import register_init_command
 from career_ai.host_proposal_cli import (
     register_host_proposal_commands,
 )
-from career_ai.llm.client import build_llm_client
-from career_ai.llm.settings import LLMSettings
 from career_ai.rendering.html_installation import (
     CHROMIUM_MISSING_EXIT_CODE,
     RendererInstallStatus,
@@ -40,19 +35,26 @@ DEFAULT_EVAL_CASE_DIR: Final[Path] = Path("evals/career_cases")
 DEFAULT_PROMPT_DIR: Final[Path] = Path("prompts")
 
 
+@unique
+class AnalyzeOutput(StrEnum):
+    """Supported analyze presentation formats."""
+
+    HUMAN = "human"
+    JSON = "json"
+
+
 @app.command()
 def doctor() -> None:
     """Show local agent configuration and model capability status."""
-    settings = LLMSettings()
-    profile = settings.capability_profile
-    structured = "yes" if profile.supports_structured_output else "no"
-    single_turn_tools = "yes" if profile.supports_single_turn_tool_calls else "no"
-    multi_turn_tools = "yes" if profile.supports_multi_turn_tool_calls else "no"
-    reasoning = "yes" if profile.supports_reasoning_mode else "no"
-    streaming = "yes" if profile.supports_streaming else "no"
-    tracing = "yes" if profile.supports_provider_tracing else "no"
-    console.print(f"Provider: {settings.provider.value}")
-    console.print(f"Model: {profile.model_name}")
+    status = read_provider_status()
+    structured = "yes" if status.supports_structured_output else "no"
+    single_turn_tools = "yes" if status.supports_single_turn_tools else "no"
+    multi_turn_tools = "yes" if status.supports_multi_turn_tools else "no"
+    reasoning = "yes" if status.supports_reasoning else "no"
+    streaming = "yes" if status.supports_streaming else "no"
+    tracing = "yes" if status.supports_tracing else "no"
+    console.print(f"Provider: {status.provider}")
+    console.print(f"Model: {status.model}")
     console.print(f"Structured output: {structured}")
     console.print(f"Single-turn tool calls: {single_turn_tools}")
     console.print(f"Multi-turn tool calls: {multi_turn_tools}")
@@ -94,37 +96,30 @@ def analyze(
     resume_text: Annotated[str, typer.Option(help="Inline resume text.")] = "",
     jd_text: Annotated[str, typer.Option(help="Inline job description text.")] = "",
     resume_file: Annotated[Path | None, typer.Option(help="Resume file path.")] = None,
+    output: Annotated[
+        AnalyzeOutput,
+        typer.Option(help="Output format: human or json."),
+    ] = AnalyzeOutput.HUMAN,
 ) -> None:
-    """Analyze a resume against a job description with the local agent."""
+    """Analyze a resume against a job description deterministically."""
     resolved_resume = _resolve_resume_text(resume_text=resume_text, resume_file=resume_file)
-    settings = LLMSettings()
-    result = run_career_agent(
+    result = CareerFitApplicationService(prompt_dir=DEFAULT_PROMPT_DIR).run(
         resume_text=resolved_resume,
         jd_text=jd_text,
-        prompt_dir=Path("prompts"),
-        llm_client=build_llm_client(settings),
     )
-    console.print(f"Mode: {agent_mode_label(result.mode)}")
+    quality_status = "PASS" if result.quality.passed else "FAIL"
+    failed_checks = [
+        f"{check.name} - {check.message}" for check in result.quality.checks if not check.passed
+    ]
+    if output == AnalyzeOutput.JSON:
+        console.print_json(result.for_public_output().model_dump_json())
+        return
     console.print(f"Role: {result.workflow.report.jd_analysis.role_title}")
     console.print(f"Match score: {result.workflow.report.match.score}")
     console.print(f"Best prompt: {result.workflow.prompt_result.best_strategy_name}")
-    quality_status = "PASS" if result.quality_report.passed else "FAIL"
-    completed_tools = [
-        step.name for step in result.steps if step.status.value == "completed"
-    ]
-    skipped_tools = [
-        step.name for step in result.steps if step.status.value == "skipped"
-    ]
-    failed_checks = [
-        f"{check.name} - {check.message}"
-        for check in result.quality_report.checks
-        if not check.passed
-    ]
     console.print(f"Quality: {quality_status}")
-    console.print(f"Trace: {result.trace.run_id}")
-    console.print(f"Completed tools: {', '.join(completed_tools) or 'none'}")
-    console.print(f"Skipped tools: {', '.join(skipped_tools) or 'none'}")
-    console.print("Memory summary: available")
+    console.print(f"Audit ID: {result.run_record.run_id}")
+    console.print(f"Workflow steps: {', '.join(result.run_record.step_names)}")
     console.print(f"Failed checks: {'; '.join(failed_checks) if failed_checks else 'none'}")
 
 
@@ -140,12 +135,10 @@ def run_eval_command(
     ] = DEFAULT_PROMPT_DIR,
 ) -> None:
     """Run deterministic career eval cases through the local agent harness."""
-    settings = LLMSettings()
     try:
         result = run_eval_suite(
             case_dir=case_dir,
             prompt_dir=prompt_dir,
-            llm_client=build_llm_client(settings),
         )
     except EvalCaseLoadError as error:
         console.print(str(error))
@@ -172,6 +165,12 @@ def run_eval_matrix_command(
     ] = DEFAULT_PROMPT_DIR,
 ) -> None:
     """Run eval cases across local model-harness configurations."""
+    # Deferred so deterministic analyze/eval startup does not load provider code.
+    from career_ai.evals.model_harness_matrix import (  # noqa: PLC0415
+        default_model_harness_rows,
+        run_model_harness_matrix,
+    )
+
     try:
         result = run_model_harness_matrix(
             case_dir=case_dir,

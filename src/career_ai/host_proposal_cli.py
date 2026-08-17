@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 from rich.console import Console  # noqa: TC002 - runtime object passed from root CLI.
 
-from career_ai.application import TailoringApplicationService
 from career_ai.host_proposal_output import (
     CliOutputMode,
     print_latex_profile,
@@ -28,6 +27,16 @@ DEFAULT_JD_FILE = Path("jd.txt")
 DEFAULT_PROPOSAL_FILE = Path("proposal.json")
 DEFAULT_CONFIRMATION_FILE = Path("confirmation.json")
 
+if TYPE_CHECKING:
+    from career_ai.application import TailoringApplicationService
+
+
+def _service(workspace: Path) -> TailoringApplicationService:
+    """Load provider-aware tailoring only when its command is invoked."""
+    from career_ai.application import TailoringApplicationService  # noqa: PLC0415
+
+    return TailoringApplicationService(workspace=workspace)
+
 
 def register_host_proposal_commands(  # noqa: C901
     app: typer.Typer,
@@ -36,7 +45,7 @@ def register_host_proposal_commands(  # noqa: C901
     """Attach host-proposal commands to the root CLI."""
 
     @app.command("prepare")
-    def prepare_command(  # noqa: PLR0913 - Typer exposes user-facing CLI options.
+    def prepare_command(  # noqa: PLR0913, PLR0917 - Typer exposes CLI options.
         workspace: Annotated[
             Path,
             typer.Option(help="Career AI workspace root."),
@@ -60,7 +69,7 @@ def register_host_proposal_commands(  # noqa: C901
         ] = CliOutputMode.RESULT,
     ) -> None:
         """Prepare a no-API host-proposal request artifact."""
-        result = TailoringApplicationService(workspace=workspace).prepare(
+        result = _service(workspace).prepare(
             resume_file=resume_file,
             jd_file=jd_file,
             latex_template=latex_template,
@@ -86,7 +95,7 @@ def register_host_proposal_commands(  # noqa: C901
     ) -> None:
         """Validate a host-authored proposal through the local dual harness."""
         try:
-            result = TailoringApplicationService(workspace=workspace).validate(
+            result = _service(workspace).validate(
                 run_id=run_id,
                 proposal_file=proposal_file,
             )
@@ -113,7 +122,7 @@ def register_host_proposal_commands(  # noqa: C901
     ) -> None:
         """Persist a confirmation response and rerun validation."""
         try:
-            result = TailoringApplicationService(workspace=workspace).confirm(
+            result = _service(workspace).confirm(
                 run_id=run_id,
                 confirmation_file=confirmation_file,
             )
@@ -141,12 +150,12 @@ def register_host_proposal_commands(  # noqa: C901
         """Generate or validate proposals for a prepared tailoring run."""
         try:
             if host_proposal is not None:
-                result = TailoringApplicationService(workspace=workspace).validate(
+                result = _service(workspace).validate(
                     run_id=run_id,
                     proposal_file=host_proposal,
                 )
             else:
-                result = TailoringApplicationService(workspace=workspace).tailor_with_api(
+                result = _service(workspace).tailor_with_api(
                     run_id=run_id,
                 )
         except HostRunError as error:
@@ -176,7 +185,7 @@ def register_host_proposal_commands(  # noqa: C901
     ) -> None:
         """Render accepted artifacts with live hash revalidation."""
         try:
-            result = TailoringApplicationService(workspace=workspace).render(
+            result = _service(workspace).render(
                 run_id=run_id,
                 render_format=render_format,
                 disable_latex_engines=disable_latex_engines,
@@ -200,7 +209,7 @@ def register_host_proposal_commands(  # noqa: C901
         ] = CliOutputMode.RESULT,
     ) -> None:
         """Inspect a user-owned LaTeX template without modifying it."""
-        profile = TailoringApplicationService(workspace=DEFAULT_WORKSPACE).inspect_latex_template(
+        profile = _service(DEFAULT_WORKSPACE).inspect_latex_template(
             template_file,
         )
         print_latex_profile(console, profile, output)
