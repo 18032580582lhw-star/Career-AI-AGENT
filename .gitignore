@@ -18,6 +18,9 @@ dist/
 
 # Personal data — never commit
 Career_Knowledge_Base_*.md
+resume-format-spec.md
+resume-template*.docx
+李昊威*.docx
 
 .DS_Store
 Thumbs.db
