@@ -22,7 +22,7 @@ __all__ = [
 
 
 def __getattr__(name: str) -> object:
-    """Load provider-aware services only when explicitly requested."""
+    """Load tailoring services only when explicitly requested."""
     if name == "TailoringApplicationService":
         from career_ai.application import tailoring_service  # noqa: PLC0415
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path  # noqa: TC003 - pytest tmp_path uses concrete Path.
-from typing import TYPE_CHECKING
 
 from typer.testing import CliRunner
 
@@ -16,9 +15,6 @@ from career_ai.tailoring.proposal_contracts import (
     calculate_proposal_hash,
 )
 from tests.resume_document_helpers import accepted_bundle, resume_document_draft
-
-if TYPE_CHECKING:
-    import pytest
 
 
 def test_prepare_outputs_machine_readable_host_proposal_package(tmp_path: Path) -> None:
@@ -108,25 +104,13 @@ def test_validate_draft_rejects_markdown_code_fence_json(tmp_path: Path) -> None
     assert "strict JSON" in result.stdout
 
 
-def test_validate_draft_does_not_call_provider_api(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_validate_draft_locally_validates_host_proposal(tmp_path: Path) -> None:
     # Given: a prepared run and a host proposal.
     run_id = _prepare_cli_run(tmp_path)
     context = load_run_context(tmp_path, run_id)
     proposal = _accepted_strategy_proposal(context.run_id)
     proposal_file = tmp_path / "proposal.json"
     _ = proposal_file.write_text(proposal.model_dump_json(), encoding="utf-8")
-
-    def forbidden_provider_call() -> None:
-        message = "provider should not be built for host proposal validation"
-        raise AssertionError(message)
-
-    monkeypatch.setattr(
-        "career_ai.llm.client.build_llm_client",
-        forbidden_provider_call,
-    )
     runner = CliRunner()
 
     # When: the host proposal is validated through the local harness.
@@ -145,7 +129,7 @@ def test_validate_draft_does_not_call_provider_api(
         ],
     )
 
-    # Then: the host proposal is locally validated without provider access.
+    # Then: the host proposal is validated locally with a host source marker.
     assert result.exit_code == 0
     payload = HostValidationResult.model_validate_json(result.stdout)
     assert payload.source.value == "host"

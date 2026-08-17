@@ -72,6 +72,20 @@ def test_skill_and_harness_modules_do_not_depend_on_streamlit() -> None:
     assert violations == ()
 
 
+def test_no_production_file_imports_removed_agent_or_llm_runtime() -> None:
+    # Given: every production Python source file under the domain package.
+    production_files = _python_files(_SOURCE_ROOT)
+
+    # When: static imports are checked against the removed runtime namespaces.
+    violations = _find_prohibited_imports(
+        production_files,
+        ("career_ai.agent", "career_ai.llm"),
+    )
+
+    # Then: the embedded agent and model runtime are fully removed.
+    assert violations == ()
+
+
 def test_boundary_scanner_reports_prohibited_import_when_source_violates_boundary(
     tmp_path: Path,
 ) -> None:

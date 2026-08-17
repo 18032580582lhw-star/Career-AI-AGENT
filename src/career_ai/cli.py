@@ -6,7 +6,6 @@ import typer
 from rich.console import Console
 
 from career_ai.application.career_fit_service import CareerFitApplicationService
-from career_ai.application.provider_status import read_provider_status
 from career_ai.evals.failure_corpus import (
     FailureCorpusRecord,
     failure_record_to_eval_case_draft,
@@ -29,7 +28,7 @@ from career_ai.rendering.html_installation import (
 )
 from career_ai.text_processing import extract_resume_text
 
-app = typer.Typer(help="Local model-neutral Career Agent.")
+app = typer.Typer(help="Local host-native career Harness.")
 console = Console()
 DEFAULT_EVAL_CASE_DIR: Final[Path] = Path("evals/career_cases")
 DEFAULT_PROMPT_DIR: Final[Path] = Path("prompts")
@@ -45,22 +44,8 @@ class AnalyzeOutput(StrEnum):
 
 @app.command()
 def doctor() -> None:
-    """Show local agent configuration and model capability status."""
-    status = read_provider_status()
-    structured = "yes" if status.supports_structured_output else "no"
-    single_turn_tools = "yes" if status.supports_single_turn_tools else "no"
-    multi_turn_tools = "yes" if status.supports_multi_turn_tools else "no"
-    reasoning = "yes" if status.supports_reasoning else "no"
-    streaming = "yes" if status.supports_streaming else "no"
-    tracing = "yes" if status.supports_tracing else "no"
-    console.print(f"Provider: {status.provider}")
-    console.print(f"Model: {status.model}")
-    console.print(f"Structured output: {structured}")
-    console.print(f"Single-turn tool calls: {single_turn_tools}")
-    console.print(f"Multi-turn tool calls: {multi_turn_tools}")
-    console.print(f"Reasoning mode: {reasoning}")
-    console.print(f"Streaming: {streaming}")
-    console.print(f"Provider tracing: {tracing}")
+    """Show local Harness configuration and renderer status."""
+    console.print("Model provider: absent (host-owned reasoning)")
     renderer_status = check_html_playwright_installation(output_directory=Path.cwd())
     _print_renderer_status(renderer_status)
     print_extended_doctor_status(console)
@@ -151,56 +136,6 @@ def run_eval_command(
         for check in case_result.checks:
             if not check.passed:
                 console.print(f"  - {check.name}: {check.message}")
-
-
-@app.command("eval-matrix")
-def run_eval_matrix_command(
-    case_dir: Annotated[
-        Path,
-        typer.Option(help="Directory containing career eval case JSON files."),
-    ] = DEFAULT_EVAL_CASE_DIR,
-    prompt_dir: Annotated[
-        Path,
-        typer.Option(help="Directory containing prompt strategy markdown files."),
-    ] = DEFAULT_PROMPT_DIR,
-) -> None:
-    """Run eval cases across local model-harness configurations."""
-    # Deferred so deterministic analyze/eval startup does not load provider code.
-    from career_ai.evals.model_harness_matrix import (  # noqa: PLC0415
-        default_model_harness_rows,
-        run_model_harness_matrix,
-    )
-
-    try:
-        result = run_model_harness_matrix(
-            case_dir=case_dir,
-            prompt_dir=prompt_dir,
-            rows=default_model_harness_rows(),
-        )
-    except EvalCaseLoadError as error:
-        console.print(str(error))
-        raise typer.Exit(code=2) from error
-    console.print(f"Total rows: {result.total_rows}")
-    console.print(f"Passed rows: {result.passed_rows}")
-    console.print(f"Failed rows: {result.failed_rows}")
-    console.print(f"Skipped rows: {result.skipped_rows}")
-    console.print(f"Unsupported capabilities: {result.unsupported_capability_count}")
-    for row_result in result.row_results:
-        row_summary = " ".join(
-            [
-                f"- {row_result.name}: {row_result.provider}/{row_result.model}",
-                f"status={row_result.status}",
-                f"passed={row_result.passed_cases}",
-                f"failed={row_result.failed_cases}",
-            ],
-        )
-        console.print(row_summary)
-        for failed_check in row_result.failed_checks:
-            console.print(f"  - failed check: {failed_check}")
-        for capability in row_result.unsupported_capabilities:
-            console.print(f"  - unsupported capability: {capability}")
-        if row_result.skip_reason:
-            console.print(f"  - skip reason: {row_result.skip_reason}")
 
 
 @app.command("failure-to-eval")

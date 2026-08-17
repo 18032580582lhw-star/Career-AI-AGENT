@@ -16,17 +16,13 @@ from career_ai.rendering.html_installation import (
 from career_ai.tailoring.manifest_contracts import RenderBackend
 
 
-def test_cli_doctor_reports_fake_provider_ready() -> None:
+def test_cli_doctor_reports_host_owned_provider_absent() -> None:
     runner = CliRunner()
 
     result = runner.invoke(app, ["doctor"])
 
     assert result.exit_code == 0
-    assert "Provider: fake" in result.stdout
-    assert "Model: local-fake" in result.stdout
-    assert "Structured output: yes" in result.stdout
-    assert "Single-turn tool calls: no" in result.stdout
-    assert "Provider tracing: no" in result.stdout
+    assert "Model provider: absent (host-owned reasoning)" in result.stdout
     assert "HTML renderer:" in result.stdout
 
 
@@ -161,7 +157,7 @@ def test_cli_import_does_not_eagerly_load_agent_or_llm_namespaces() -> None:
         "for name in sys.modules))"
     )
 
-    # When: import state is inspected before any doctor/eval-matrix command runs.
+    # When: import state is inspected before any doctor command runs.
     completed = subprocess.run(  # noqa: S603 - fixed interpreter and inline probe.
         [sys.executable, "-c", script],
         check=True,
@@ -215,82 +211,3 @@ def test_cli_eval_fails_when_case_directory_is_missing(tmp_path: Path) -> None:
     assert result.exit_code == 2
     assert "Eval case directory does not exist" in result.stdout
     assert "Total cases: 0" not in result.stdout
-
-
-def test_cli_analyze_and_eval_do_not_build_provider_client(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    # Given: the provider builder is poisoned so any call fails.
-    def forbidden_provider_call() -> None:
-        message = "provider client must not be built during analyze or eval"
-        raise AssertionError(message)
-
-    monkeypatch.setattr("career_ai.llm.client.build_llm_client", forbidden_provider_call)
-    runner = CliRunner()
-
-    # When: deterministic analyze and eval run.
-    analyze = runner.invoke(
-        app,
-        [
-            "analyze",
-            "--resume-text",
-            "Product analyst using Python SQL.",
-            "--jd-text",
-            "Role: Data Analyst. Requires Python and SQL.",
-        ],
-    )
-    eval_result = runner.invoke(
-        app,
-        ["eval", "--case-dir", "evals/career_cases", "--prompt-dir", "prompts"],
-    )
-
-    # Then: neither path constructs a provider client.
-    assert analyze.exit_code == 0
-    assert eval_result.exit_code == 0
-
-
-def test_cli_eval_matrix_prints_fake_model_harness_summary() -> None:
-    runner = CliRunner()
-
-    result = runner.invoke(
-        app,
-        [
-            "eval-matrix",
-            "--case-dir",
-            "evals/career_cases",
-            "--prompt-dir",
-            "prompts",
-        ],
-    )
-
-    assert result.exit_code == 0
-    assert "Total rows: 1" in result.stdout
-    assert "fake-default: fake/local-fake" in result.stdout
-    assert "status=passed" in result.stdout
-    assert "passed=" in result.stdout
-    assert "Failed rows: 0" in result.stdout
-    assert "failed check:" not in result.stdout
-    assert "Unsupported capabilities: 0" in result.stdout
-
-
-def test_cli_eval_matrix_fails_when_case_directory_is_missing(tmp_path: Path) -> None:
-    # Given: a case directory path that does not exist.
-    missing_dir = tmp_path / "missing-cases"
-    runner = CliRunner()
-
-    # When: eval-matrix is run against the missing directory.
-    result = runner.invoke(
-        app,
-        [
-            "eval-matrix",
-            "--case-dir",
-            str(missing_dir),
-            "--prompt-dir",
-            "prompts",
-        ],
-    )
-
-    # Then: the command fails loudly instead of marking fake-default as passed.
-    assert result.exit_code == 2
-    assert "Eval case directory does not exist" in result.stdout
-    assert "status=passed passed=0 failed=0" not in result.stdout

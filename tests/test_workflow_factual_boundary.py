@@ -1,10 +1,9 @@
+from career_ai.analysis import analyze_career_fit, get_sample_inputs
 from career_ai.workflows.factual_boundary import (
     BoundaryViolationCode,
     check_career_fit_report,
     guard_career_fit_report,
 )
-
-from career_ai.analysis import analyze_career_fit, get_sample_inputs
 
 
 def test_accepts_valid_career_fit_report_when_output_is_grounded() -> None:

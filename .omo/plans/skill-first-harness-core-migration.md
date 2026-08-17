@@ -573,7 +573,7 @@ Fresh temporary workspace setup plus live `codex exec` and `claude -p --output-f
 
 ---
 
-- [ ] Task 7 — Delete the custom Agent runtime, provider layer, and fake matrix
+- [x] Task 7 — Delete the custom Agent runtime, provider layer, and fake matrix
 
 ### Task 7 — Delete the custom Agent runtime, provider layer, and fake matrix
 

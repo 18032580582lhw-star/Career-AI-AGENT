@@ -27,7 +27,6 @@ def print_extended_doctor_status(console: Console) -> None:
         "Skill version": "PASS",
         "Skill hash": canonical_skill_digest(),
         "Duplicate Skill": "PASS",
-        "No-API provider calls": "PASS",
     }
     for name, status in checks.items():
         console.print(f"{name}: {status}")
