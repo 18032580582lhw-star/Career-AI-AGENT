@@ -22,7 +22,7 @@ First read the full raw install guide:
 https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/docs/agent-install.md
 
 Do not rely on a summarized web page. Follow the guide, run the installer or
-manual commands, then verify with doctor, init, eval, and eval-matrix. If a
+manual commands, then verify with doctor, init, and eval. If a
 dependency is missing, stop and report the exact repair command.
 ```
 
@@ -41,7 +41,7 @@ The installer:
 3. Installs the package in editable mode.
 4. Runs `career-ai-agent doctor`.
 5. Runs `career-ai-agent init --workspace <checkout> --agent all`.
-6. Runs deterministic `eval` and `eval-matrix` unless explicitly skipped.
+6. Runs deterministic `eval` unless explicitly skipped.
 
 The host Skill is installed into:
 
@@ -115,7 +115,6 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\career-ai-agent.exe doctor
 .\.venv\Scripts\career-ai-agent.exe init --workspace . --agent all
 .\.venv\Scripts\career-ai-agent.exe eval --case-dir evals\career_cases --prompt-dir prompts
-.\.venv\Scripts\career-ai-agent.exe eval-matrix --case-dir evals\career_cases --prompt-dir prompts
 ```
 
 macOS / Linux:
@@ -129,7 +128,6 @@ python3.12 -m venv .venv
 ./.venv/bin/career-ai-agent doctor
 ./.venv/bin/career-ai-agent init --workspace . --agent all
 ./.venv/bin/career-ai-agent eval --case-dir evals/career_cases --prompt-dir prompts
-./.venv/bin/career-ai-agent eval-matrix --case-dir evals/career_cases --prompt-dir prompts
 ```
 
 If `python3.12` is unavailable, install Python 3.12 first. The project requires
@@ -143,14 +141,12 @@ Installation is complete when all of these pass:
 career-ai-agent doctor
 career-ai-agent init --workspace . --agent all
 career-ai-agent eval --case-dir evals\career_cases --prompt-dir prompts
-career-ai-agent eval-matrix --case-dir evals\career_cases --prompt-dir prompts
 ```
 
 Expected release baseline:
 
 ```text
 eval: 3 passed, 0 failed
-eval-matrix: fake-default passed=3 failed=0
 ```
 
 Known environment boundary: if Tectonic or XeLaTeX is not installed, `doctor`

@@ -1,5 +1,10 @@
 # Harness-First Roadmap: Finalized Delivery Status
 
+> **Superseded (2026-08-17):** the Skill-first / Harness-core migration is complete. The
+> custom Agent runtime, embedded provider layer, fake matrix, and Streamlit have been removed.
+> This document remains a truthful record of the earlier harness-first delivery; the current
+> target architecture is [`docs/architecture/skill-first-harness-core.md`](../architecture/skill-first-harness-core.md).
+
 ## Canonical Status
 
 The governing implementation contract is

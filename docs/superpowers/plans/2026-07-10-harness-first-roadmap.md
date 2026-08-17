@@ -1,5 +1,11 @@
 # Harness-First Roadmap Implementation Plan
 
+> **Superseded (2026-08-17):** this plan is retained as the historical harness-first contract.
+> The Skill-first / Harness-core migration (`docs/architecture/skill-first-harness-core.md`)
+> has superseded its provider, matrix, tool-catalog, runtime-enforcement, memory, and autonomy
+> layers; the embedded agent/provider runtime and Streamlit are removed. Historical results below
+> remain truthful records of the earlier delivery.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Turn AI Career Intelligence Suite from a functional local career workflow into a measurable, traceable, recoverable, and safety-bounded career-agent harness.

@@ -193,15 +193,6 @@ if (-not $SkipEval) {
         "--prompt-dir",
         (Join-Path $projectPath "prompts")
     )
-
-    Write-Step "Running eval-matrix"
-    Invoke-Checked -Command $cliPath -Arguments @(
-        "eval-matrix",
-        "--case-dir",
-        (Join-Path $projectPath "evals\career_cases"),
-        "--prompt-dir",
-        (Join-Path $projectPath "prompts")
-    )
 }
 
 Write-Step "Installed"

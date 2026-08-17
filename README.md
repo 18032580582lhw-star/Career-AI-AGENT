@@ -6,4 +6,4 @@ Choose a language version:
 - [English README](README.en.md)
 - [Agent install guide](docs/agent-install.md)
 
-Last updated: 2026-07-14.
+Last updated: 2026-08-17.

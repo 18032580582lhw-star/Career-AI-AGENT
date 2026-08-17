@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ai-career-intelligence-suite"
 version = "0.1.0"
-description = "Local Streamlit MVP for resume and job-description intelligence."
+description = "Host-native Skill and deterministic Harness for resume and job-description intelligence."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

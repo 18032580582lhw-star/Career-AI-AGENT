@@ -16,7 +16,7 @@ Options:
   --install-root DIR     Directory that will contain the checkout.
   --checkout-dir NAME    Override checkout directory name.
   --update               Run git pull --ff-only in an existing checkout.
-  --skip-eval            Skip eval and eval-matrix after install.
+  --skip-eval            Skip eval after install.
   -h, --help             Show this help.
 EOF
 }
@@ -181,9 +181,6 @@ printf '%s\n' "$init_json"
 if [[ "$skip_eval" -eq 0 ]]; then
   step "Running eval"
   "$cli" eval --case-dir "$project_dir/evals/career_cases" --prompt-dir "$project_dir/prompts"
-
-  step "Running eval-matrix"
-  "$cli" eval-matrix --case-dir "$project_dir/evals/career_cases" --prompt-dir "$project_dir/prompts"
 fi
 
 step "Installed"
