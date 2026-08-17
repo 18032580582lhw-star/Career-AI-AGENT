@@ -1,0 +1,29 @@
+# AI Career Intelligence Suite
+
+> Local-first, host-native career workflow toolkit. A reusable Agent Skill plus a deterministic
+> validation and rendering Harness CLI. Reasoning is host-owned (Codex / Claude Code); there is no
+> embedded model provider or in-process agent loop.
+
+## Getting started
+
+- [README (English)](README.en.md): overview, quick start, CLI commands, architecture map
+- [Agent Install Guide](docs/agent-install.md): how an agent or a human installs the project from a GitHub URL
+
+## Architecture
+
+- [Skill-first Harness-core architecture](docs/architecture/skill-first-harness-core.md): ownership, deprecated-surface removal status, staged gates, current facts
+- [DeepSeek harness adapter seam](docs/integrations/deepseek-harness.md): requirements and time-sensitive guidance for adding a DeepSeek host adapter
+
+## Verification
+
+- [Host skill smoke runbook](docs/verification/host-skill-smoke.md): live host smoke scenarios and recorded Codex results
+- [Repository maintenance and archive](docs/maintenance/repository-mainline-cleanup.md): branch/artifact retention, archive refs, rollback commands
+- [Repository policy](docs/maintenance/repository-policy.md): branch and artifact retention rules
+
+## Core commands
+
+- `career-ai-agent doctor` — local Harness and renderer status
+- `career-ai-agent analyze` — resume-vs-JD analysis (human or JSON output)
+- `career-ai-agent eval` — deterministic eval suite
+- `career-ai-agent init` / `prepare` / `validate-draft` / `confirm` / `render` — high-trust tailoring workflow
+- `career-ai-agent install-renderer` — HTML (Playwright) and LaTeX renderer checks

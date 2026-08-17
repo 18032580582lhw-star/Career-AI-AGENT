@@ -1,5 +1,10 @@
 # AI Career Intelligence Suite
 
+[![Python](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org/)
+[![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-8A2BE2)](#)
+
+本地优先、宿主原生的职业工作流工具包：可复用 Agent Skill + 确定性校验与渲染 Harness CLI。
+
 > 最后更新：2026-08-17。Skill-first / Harness-core 迁移已全部完成（Task 1–9）。
 
 ## 项目概览
@@ -59,6 +64,36 @@ provider，也没有进程内 Agent 循环：推理由宿主所有，Harness 保
 - 邮件、日历、网盘、Notion 等外部操作集成
 - 内嵌模型 provider、进程内 Agent 循环、网页 UI
 - 在未经本地 validation 的情况下让模型直接改写或渲染用户材料
+
+## 用 Agent 安装
+
+把下面这段提示词复制给 Codex 或 Claude Code，让 Agent 直接安装本项目：
+
+```text
+安装这个项目：https://github.com/18032580582lhw-star/Career-AI-AGENT
+
+阅读 docs/agent-install.md，然后创建 Python 3.12 虚拟环境，
+pip install -e .，并运行：career-ai-agent doctor、
+career-ai-agent init --workspace . --agent all、
+career-ai-agent eval --case-dir evals/career_cases --prompt-dir prompts。
+逐字报告 doctor 与 eval 的结果。
+```
+
+或者自己运行已审查的安装脚本：
+
+```powershell
+# Windows
+irm https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/scripts/install-agent.ps1 -OutFile install-agent.ps1
+.\install-agent.ps1 -RepoUrl "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" -Agent all
+```
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/scripts/install-agent.sh -o install-agent.sh
+bash install-agent.sh --repo-url "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" --agent all
+```
+
+完整手动步骤：[Agent 安装指南](docs/agent-install.md)。
 
 ## 快速开始
 

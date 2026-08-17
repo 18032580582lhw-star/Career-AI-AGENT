@@ -1,5 +1,11 @@
 # AI Career Intelligence Suite
 
+[![Python](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org/)
+[![Hosts](https://img.shields.io/badge/hosts-Codex%20%7C%20Claude%20Code-8A2BE2)](#)
+
+A local-first, host-native career workflow toolkit: a reusable Agent Skill plus a
+deterministic validation and rendering Harness CLI.
+
 > Last updated: 2026-08-17. Skill-first / Harness-core migration is complete (Tasks 1–9).
 
 ## Overview
@@ -59,6 +65,36 @@ Authentication, payments, cloud deployment, multi-user databases, private-docume
 job-board scanning, application tracking, auto-apply, external messaging/email/calendar/storage
 integrations, an embedded model provider, an in-process agent loop, a web UI, and
 model-authorized rendering without local validation.
+
+## Install with an agent
+
+Copy this prompt into Codex or Claude Code to have the agent install the project for you:
+
+```text
+Install this project: https://github.com/18032580582lhw-star/Career-AI-AGENT
+
+Read docs/agent-install.md, then create a Python 3.12 virtual environment,
+pip install -e ., and run: career-ai-agent doctor,
+career-ai-agent init --workspace . --agent all, and
+career-ai-agent eval --case-dir evals/career_cases --prompt-dir prompts.
+Report the doctor and eval results verbatim.
+```
+
+Or run the reviewed installer yourself:
+
+```powershell
+# Windows
+irm https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/scripts/install-agent.ps1 -OutFile install-agent.ps1
+.\install-agent.ps1 -RepoUrl "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" -Agent all
+```
+
+```bash
+# macOS / Linux
+curl -fsSL https://raw.githubusercontent.com/18032580582lhw-star/Career-AI-AGENT/main/scripts/install-agent.sh -o install-agent.sh
+bash install-agent.sh --repo-url "https://github.com/18032580582lhw-star/Career-AI-AGENT.git" --agent all
+```
+
+Full manual steps: [Agent Install Guide](docs/agent-install.md).
 
 ## Quick Start
 
