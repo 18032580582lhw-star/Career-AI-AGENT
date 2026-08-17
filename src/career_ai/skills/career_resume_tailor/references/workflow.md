@@ -21,3 +21,8 @@ Use explicit file arguments on every host, especially on Windows.
 
 Do not use heredoc, shell pipelines, or inline JSON for host handoff. Persist JSON
 to a file and pass the file path.
+
+This workflow is host-neutral: Codex, Claude Code, and a future DeepSeek harness
+adapter all run the same commands and obey the same gates. A host is only a
+producer/consumer of the strict proposal JSON defined in `proposal-contract.md`;
+it must not add host-specific fields to that JSON or weaken the local Harness gates.

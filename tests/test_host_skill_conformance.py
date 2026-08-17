@@ -277,3 +277,20 @@ def _assert_render_boundary(
 def _assert_relative(value: str) -> None:
     assert value
     assert not Path(value).is_absolute()
+
+
+def test_deepseek_doc_points_to_canonical_schema_without_duplicating_it() -> None:
+    # Given: the DeepSeek harness adapter guidance document.
+    doc = Path("docs/integrations/deepseek-harness.md").read_text(encoding="utf-8")
+
+    # Then: it references the canonical schema source instead of redefining fields.
+    assert "proposal_contracts" in doc
+    assert "prepare" in doc
+    for duplicated_field in (
+        "rewritten_resume",
+        "proposal_hash",
+        "source_hashes",
+        "candidate_fact_ids",
+        "template_hash",
+    ):
+        assert duplicated_field not in doc, duplicated_field

@@ -24,3 +24,9 @@ The host should preserve run id, source hashes, template hash, and output
 language from the prepare package. Any mismatch is treated as stale or invalid.
 Candidate facts are owned by the local prepared run; do not add candidate facts
 to the host package.
+
+The canonical schema is the single source of truth: it is returned by
+`career-ai-agent prepare` and defined in `career_ai.tailoring.proposal_contracts`.
+Host-specific fields — model IDs, tool-call capabilities, reasoning/state replay
+settings, or adapter version markers — must not enter the proposal contract. Any
+host adapter that needs those values keeps them out-of-band.

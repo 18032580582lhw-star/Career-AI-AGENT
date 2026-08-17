@@ -451,7 +451,7 @@ git diff --check
 
 ---
 
-- [ ] Task 5 — Prove Codex/Claude host behavior and define the DeepSeek adapter seam
+- [x] Task 5 — Prove Codex/Claude host behavior and define the DeepSeek adapter seam
 
 ### Task 5 — Prove Codex/Claude host behavior and define the DeepSeek adapter seam
 

@@ -24,6 +24,15 @@ REFERENCE_FILES = (
     "references/rendering.md",
     "references/workflow.md",
 )
+REQUIRED_COMMANDS = ("init", "prepare", "validate-draft", "confirm", "render")
+REQUIRED_STOP_CONDITIONS = (
+    "validation fails",
+    "evidence is missing",
+    "exceeds its source",
+    "stale",
+    "rejects",
+    "repair limit",
+)
 
 
 def _frontmatter_fields(skill_text: str) -> dict[str, str]:
@@ -170,6 +179,21 @@ def test_install_record_matches_machine_readable_result(tmp_path: Path) -> None:
     # Then: persistent metadata is exactly the reported schema.
     assert result.exit_code == 0
     assert record_payload == stdout_payload
+
+
+def test_skill_references_every_required_command_and_stop_condition() -> None:
+    # Given: the canonical Skill bundle.
+    skill_root = canonical_skill_root()
+    corpus = "\n".join(
+        (skill_root / path).read_text(encoding="utf-8")
+        for path in ("SKILL.md", *REFERENCE_FILES)
+    ).lower()
+
+    # Then: every required command and stop condition is referenced verbatim.
+    for command in REQUIRED_COMMANDS:
+        assert command in corpus, command
+    for condition in REQUIRED_STOP_CONDITIONS:
+        assert condition in corpus, condition
 
 
 def test_packaged_resources_are_importable_for_clean_install_smoke() -> None:
