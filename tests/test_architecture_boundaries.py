@@ -86,6 +86,17 @@ def test_no_production_file_imports_removed_agent_or_llm_runtime() -> None:
     assert violations == ()
 
 
+def test_no_production_file_imports_streamlit() -> None:
+    # Given: every production Python source file under the domain package.
+    production_files = _python_files(_SOURCE_ROOT)
+
+    # When: static imports are checked against the removed web UI.
+    violations = _find_prohibited_imports(production_files, ("streamlit",))
+
+    # Then: no product surface depends on Streamlit.
+    assert violations == ()
+
+
 def test_boundary_scanner_reports_prohibited_import_when_source_violates_boundary(
     tmp_path: Path,
 ) -> None:

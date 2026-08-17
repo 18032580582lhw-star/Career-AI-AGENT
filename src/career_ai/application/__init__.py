@@ -1,4 +1,4 @@
-"""Shared application services for CLI, Skills, and Streamlit."""
+"""Shared application services for CLI and Skills."""
 
 from typing import TYPE_CHECKING
 

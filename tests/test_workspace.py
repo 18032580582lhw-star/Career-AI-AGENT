@@ -1,10 +1,7 @@
 import json
-import shutil
 from pathlib import Path
-from typing import Final
 
 import pytest
-from pydantic import JsonValue, TypeAdapter
 
 from career_ai.workspace import (
     WORKSPACE_SCHEMA_VERSION,
@@ -18,26 +15,6 @@ from career_ai.workspace import (
     validate_workspace,
     write_json_atomic,
 )
-
-HISTORY_JSON_ADAPTER: Final = TypeAdapter(list[JsonValue])
-
-
-def test_legacy_history_fixture_remains_readable_and_byte_identical(tmp_path: Path) -> None:
-    # Given the repository's current legacy history copied into an isolated workspace.
-    repository_history = Path(__file__).parents[1] / ".career_ai" / "history.json"
-    workspace_history = tmp_path / ".career_ai" / "history.json"
-    workspace_history.parent.mkdir(parents=True)
-    _ = shutil.copyfile(repository_history, workspace_history)
-    original_bytes = workspace_history.read_bytes()
-
-    # When the legacy JSON is read without workspace migration.
-    parsed_history = HISTORY_JSON_ADAPTER.validate_json(
-        workspace_history.read_text(encoding="utf-8"),
-    )
-
-    # Then it remains readable and has not been rewritten.
-    assert parsed_history
-    assert workspace_history.read_bytes() == original_bytes
 
 
 def test_workspace_module_exposes_versioned_manifest_contract() -> None:

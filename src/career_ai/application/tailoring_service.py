@@ -1,4 +1,4 @@
-"""Shared tailoring application service used by CLI, Skills, and Streamlit."""
+"""Shared tailoring application service used by CLI and Skills."""
 
 from __future__ import annotations
 

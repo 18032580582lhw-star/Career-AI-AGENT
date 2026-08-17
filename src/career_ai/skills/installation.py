@@ -176,7 +176,7 @@ def _package_resources() -> SkillPackageResources:
         skill=("SKILL.md", "references/workflow.md", "agents/openai.yaml"),
         prompts=("prompts/*.md",),
         schemas=("ResumeTailoringProposal.model_json_schema", "WorkspaceManifest.schema_version"),
-        html_css=("static/app_theme.css", "career_ai.rendering.html_template"),
+        html_css=("career_ai.rendering.html_template",),
         latex_templates=("career_ai.rendering.latex/assets/system_resume.tex",),
         fonts=("career_ai.rendering/assets/fonts/NotoSans*",),
         licenses=("README.md",),

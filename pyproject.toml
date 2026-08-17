@@ -15,7 +15,6 @@ dependencies = [
     "python-docx>=1.1",
     "pypdf>=4.3",
     "rich>=13.7",
-    "streamlit>=1.36",
     "typer>=0.12",
 ]
 
@@ -59,6 +58,6 @@ ignore = [
 "tests/**/*.py" = ["D", "S101", "PLR2004"]
 
 [tool.basedpyright]
-include = ["src", "tests", "app.py"]
+include = ["src", "tests"]
 typeCheckingMode = "all"
 pythonVersion = "3.12"

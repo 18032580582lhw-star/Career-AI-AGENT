@@ -651,7 +651,7 @@ rg -n "career_ai\.(agent|llm)|run_career_agent|eval-matrix|build_llm_client|LLMS
 
 ---
 
-- [ ] Task 8 — Retire Streamlit and all UI-only state
+- [x] Task 8 — Retire Streamlit and all UI-only state
 
 ### Task 8 — Retire Streamlit and all UI-only state
 
