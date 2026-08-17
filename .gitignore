@@ -16,5 +16,8 @@ dist/
 .career_ai/
 .omo/
 
+# Personal data — never commit
+Career_Knowledge_Base_V1.0.md
+
 .DS_Store
 Thumbs.db
