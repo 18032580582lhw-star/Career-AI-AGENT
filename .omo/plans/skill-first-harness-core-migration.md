@@ -764,6 +764,13 @@ Domain fixture text mentioning Streamlit is not a failure; only product imports,
 9. Add `.omo/` to `.gitignore` so future planning state remains local and does not re-enter the product repository.
 10. Leave historical worklogs intact even when they mention OMO or Streamlit; they are records, not current instructions.
 
+> **Repository cleanup supersession (2026-08-17):** the `repository-mainline-cleanup` work
+> executed this task's historical OMO-artifact removal ahead of schedule. The pre-cleanup tree is
+> preserved immutably at tag `pre-slim-main-2026-08-17` and browsably at branch
+> `archive/pre-slim-main-2026-08-17` (personal plans under `archive/personal-plans/`). Steps 7–9
+> now reduce to verifying that tracked `.omo` process artifacts are gone and `.omo/` is ignored,
+> rather than repeating the removal. See `docs/maintenance/repository-mainline-cleanup.md`.
+
 **Must not**
 
 - Do not delete untracked user planning files.

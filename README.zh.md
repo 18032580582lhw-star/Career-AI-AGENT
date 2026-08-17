@@ -166,5 +166,7 @@ Harness 的适配器，而不是两套独立的自主 Agent。
 - `docs/architecture/skill-first-harness-core.md`：当前正式架构与迁移边界
 - `docs/roadmaps/harness-first-roadmap.md`：人类可读 harness-first 交付状态
 - `docs/superpowers/plans/2026-07-10-harness-first-roadmap.md`：canonical harness contract
-- `.omo/plans/high-trust-resume-skill-latex.md`：高可信简历定制与 LaTeX 路线图
-- `.omo/evidence/`：每个任务的验证证据
+- `docs/maintenance/repository-mainline-cleanup.md`：仓库维护收据与历史归档索引
+
+历史任务证据与已完成计划已归档至不可变 tag `pre-slim-main-2026-08-17` 与分支
+`archive/pre-slim-main-2026-08-17`，详见上述维护文档。

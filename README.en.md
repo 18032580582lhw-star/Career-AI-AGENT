@@ -165,5 +165,7 @@ and Streamlit app are adapters over that Harness, not separate autonomous agents
 - `docs/architecture/skill-first-harness-core.md`: current architecture and migration boundaries
 - `docs/roadmaps/harness-first-roadmap.md`: human-facing harness-first delivery status
 - `docs/superpowers/plans/2026-07-10-harness-first-roadmap.md`: canonical harness contract
-- `.omo/plans/high-trust-resume-skill-latex.md`: high-trust resume tailoring and LaTeX roadmap
-- `.omo/evidence/`: task-level verification evidence
+- `docs/maintenance/repository-mainline-cleanup.md`: repository maintenance receipt and archive index
+
+Historical task evidence and completed plans are archived in immutable tag
+`pre-slim-main-2026-08-17` and branch `archive/pre-slim-main-2026-08-17`; see the maintenance doc.
